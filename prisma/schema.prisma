@@ -1,0 +1,95 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int     @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email     String  @unique
+  password  String
+  isAdmin   Boolean @default(false)
+  token     String? // login token
+
+  // relations
+  universityId  Int
+  university    University?     @relation(fields: [universityId], references: [id])
+  CourseComment CourseComment[]
+}
+
+model University {
+  id            Int     @id @default(autoincrement())
+  name          String  @unique
+  address       String
+  city          String
+  rating        Int
+  emblemPicture String?
+
+  // relations
+  Professor Professor[]
+  User      User[]
+}
+
+model Professor {
+  id            Int     @id @default(autoincrement())
+  firstName     String
+  lastName      String
+  overallRating Int
+  picture       String?
+
+  // relations
+  universityId Int
+  university   University  @relation(fields: [universityId], references: [id])
+  course       Course[]
+  department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId Int?
+}
+
+model Course {
+  id          Int     @id @default(autoincrement())
+  code        String  @unique
+  name        String?
+  description String?
+
+  // relations 
+  courseComments CourseComment[]
+  Professor      Professor?      @relation(fields: [professorId], references: [id])
+  professorId    Int?
+  Department     Department?     @relation(fields: [departmentId], references: [id])
+  departmentId   Int?
+}
+
+model Department {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  Professor Professor[]
+  Course    Course[]
+}
+
+model CourseComment {
+  id          Int      @id @default(autoincrement())
+  comment     String?
+  isAnonymous Boolean
+  createdOn   DateTime @default(now())
+
+  // placeholder rating system
+  rating1 Int
+  rating2 Int
+  rating3 Int
+  rating4 Int
+
+  //relations
+  courseId Int
+  Course   Course @relation(fields: [courseId], references: [id])
+  userId   Int?
+  user     User?  @relation(fields: [userId], references: [id])
+}
