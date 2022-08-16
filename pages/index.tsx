@@ -1,12 +1,24 @@
+import { Professor } from "@prisma/client";
 import type { NextPage } from "next";
+import { useState } from "react";
+import AddProfessorForm from "../components/addProfessorForm";
+import AddUniversityForm from "../components/addUniversityForm";
 import Navbar from "../components/navbar";
 
 const Home: NextPage = () => {
-  // return <h1 className="text-3xl font-bold underline">Hello world!</h1>;
   return (
     <div>
       <Navbar></Navbar>
-      rest of the page
+      <AdminPanel></AdminPanel>
+      <AddUniversityForm></AddUniversityForm>
+    </div>
+  );
+};
+
+const AdminPanel = () => {
+  return (
+    <div>
+      <AddProfessorForm></AddProfessorForm>
     </div>
   );
 };

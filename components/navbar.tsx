@@ -1,8 +1,10 @@
 const Navbar = () => {
   return (
-    <nav className="w-full flex justify-center space-x-4">
-      <div></div>
-      <div>
+    <nav className="w-full flex space-x-4">
+      <div className="basis-1/4 flex justify-center items-center">
+        <h1>ROTTEN PROFESSORS</h1>
+      </div>
+      <div className="basis-3/4 w-full flex justify-end">
         <a
           href="/dashboard"
           className="font-bold px-3 py-2 text-slate-700 rounded-lg hover:bg-slate-100 hover:text-slate-900"

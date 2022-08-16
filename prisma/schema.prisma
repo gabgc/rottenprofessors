@@ -25,7 +25,7 @@ model University {
   name          String      @unique
   address       String
   city          String
-  rating        Int
+  rating        Int         @default(0)
   emblemPicture String?
   Professor     Professor[]
   User          User[]
@@ -35,7 +35,7 @@ model Professor {
   id            Int         @id @default(autoincrement())
   firstName     String
   lastName      String
-  overallRating Int
+  overallRating Int         @default(0)
   universityId  Int
   picture       String?
   departmentId  Int?
