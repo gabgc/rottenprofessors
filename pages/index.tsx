@@ -14,9 +14,14 @@ const Home: NextPage = () => {
 
 const AdminPanel = () => {
   return (
-    <div>
-      <AddProfessorForm></AddProfessorForm>
-      <AddUniversityForm></AddUniversityForm>
+    <div className="flex p-4">
+      <div className="w-1/2 p-6">
+        <AddProfessorForm></AddProfessorForm>
+      </div>
+
+      <div className="w-1/2 p-6">
+        <AddUniversityForm></AddUniversityForm>
+      </div>
     </div>
   );
 };
