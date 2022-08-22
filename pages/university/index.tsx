@@ -1,7 +1,7 @@
 import { NextPage } from "next";
 
 const UniversityPage: NextPage = () => {
-  return <div>University Page</div>;
+  return <div className="flex p-4">University Page</div>;
 };
 
 export default UniversityPage;
