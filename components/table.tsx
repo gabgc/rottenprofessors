@@ -7,7 +7,7 @@ interface TableProps<T extends object> {
   data: T[];
 }
 
-function Table<T extends { id: string }>({ columns, data }: TableProps<T>) {
+function Table<T extends { id: number }>({ columns, data }: TableProps<T>) {
   // Use the state and functions returned from useTable to build your UI
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable<T>({
@@ -17,12 +17,14 @@ function Table<T extends { id: string }>({ columns, data }: TableProps<T>) {
 
   // Render the UI for your table
   return (
-    <table {...getTableProps()} border={1}>
-      <thead>
+    <table className="w-full table table-auto" {...getTableProps()} border={1}>
+      <thead className="table-header-group">
         {headerGroups.map((headerGroup) => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
+          <tr className="table-row" {...headerGroup.getHeaderGroupProps()}>
             {headerGroup.headers.map((column) => (
-              <th {...column.getHeaderProps()}>{column.render("Header")}</th>
+              <th className="table-cell" {...column.getHeaderProps()}>
+                {column.render("Header")}
+              </th>
             ))}
           </tr>
         ))}
@@ -40,30 +42,6 @@ function Table<T extends { id: string }>({ columns, data }: TableProps<T>) {
         })}
       </tbody>
     </table>
-
-    // <table {...getTableProps()} border="1">
-    //   <thead>
-    //     {headerGroups.map((headerGroup) => (
-    //       <tr {...headerGroup.getHeaderGroupProps()}>
-    //         {headerGroup.headers.map((column) => (
-    //           <th {...column.getHeaderProps()}>{column.render("Header")}</th>
-    //         ))}
-    //       </tr>
-    //     ))}
-    //   </thead>
-    //   <tbody {...getTableBodyProps()}>
-    //     {rows.map((row, i) => {
-    //       prepareRow(row);
-    //       return (
-    //         <tr {...row.getRowProps()}>
-    //           {row.cells.map((cell) => {
-    //             return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
-    //           })}
-    //         </tr>
-    //       );
-    //     })}
-    //   </tbody>
-    // </table>
   );
 }
 

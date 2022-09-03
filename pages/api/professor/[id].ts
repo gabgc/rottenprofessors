@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { Professor } from "@prisma/client";
-import prisma from "../../../prisma/client";
 import { HttpResponse } from "../../../util/http.response.model";
+import { findProfessorById } from "../../../controllers/professor";
 
 const handler = async (
   req: NextApiRequest,
@@ -20,11 +20,7 @@ const handler = async (
   if (req.query.id) {
     const id = parseInt(req.query.id as string);
     if (!isNaN(id)) {
-      const professor = await prisma.professor.findUnique({
-        where: {
-          id,
-        },
-      });
+      const professor = await findProfessorById(id);
       if (professor == null) {
         res.status(404).json({
           message: "Professor not found",
