@@ -33,7 +33,7 @@ export const searchProfessor = (search: string) => {
       _relevance: {
         fields: ["firstName", "lastName"],
         search: search,
-        sort: "desc",
+        sort: "asc",
       },
     },
     take: 10,
