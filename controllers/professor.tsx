@@ -11,12 +11,42 @@ export const updateProfessor = (id: number, professor: Professor) =>
 export const deleteProfessor = (id: number) =>
   prisma.professor.delete({ where: { id } });
 
+export const searchProfessor = (search: string) => {
+  return prisma.professor.findMany({
+    where: {
+      OR: [
+        {
+          firstName: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        {
+          lastName: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+      ],
+    },
+    orderBy: {
+      _relevance: {
+        fields: ["firstName", "lastName"],
+        search: search,
+        sort: "desc",
+      },
+    },
+    take: 10,
+  });
+};
+
 const professorController = {
   findAllProfessors,
   findProfessorById,
   createProfessor,
   updateProfessor,
   deleteProfessor,
+  searchProfessor,
 };
 
 export default professorController;

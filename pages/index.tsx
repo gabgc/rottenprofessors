@@ -7,23 +7,12 @@ import { HttpResponse } from "../util/http.response.model";
 
 const Home: NextPage = () => {
   const [professorQuery, setProfessorQuery] = useState("");
-  const [results, setResults] = useState<Professor[]>([]);
+  //const [results, setResults] = useState<Professor[]>([]);
+
   const { data, error } = useSWR<HttpResponse<Professor>>(
-    "/api/professor",
+    professorQuery ? `/api/professor?search=${professorQuery}` : null,
     getFetcher
   );
-
-  useEffect(() => {
-    if (professorQuery.length > 0 && data) {
-      const filtered = (data.data as Professor[]).filter((professor) => {
-        const fullName = `${professor.firstName} ${professor.lastName}`;
-        return fullName.toLowerCase().includes(professorQuery.toLowerCase());
-      });
-      setResults(filtered || []);
-    } else {
-      setResults([]);
-    }
-  }, [professorQuery, data]);
 
   return (
     <div className="bg-gradient-to-tr from-red-200 via-slate-50 to-green-200">
@@ -40,7 +29,7 @@ const Home: NextPage = () => {
         ></input>
       </div>
       <div>
-        {results.map((professor) => (
+        {((data?.data || []) as Professor[]).map((professor) => (
           <div key={professor.id}>
             {professor.firstName} {professor.lastName}
           </div>

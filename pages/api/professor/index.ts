@@ -5,6 +5,7 @@ import { HttpResponse } from "../../../util/http.response.model";
 import {
   createProfessor,
   findAllProfessors,
+  searchProfessor,
 } from "../../../controllers/professor";
 
 const handler = async (
@@ -24,11 +25,20 @@ const handler = async (
       res.status(400);
     }
   } else if (req.method === "GET") {
-    const professors = await findAllProfessors();
-    const resBody: HttpResponse<Professor> = {
-      data: professors,
-    };
-    res.status(200).json(resBody);
+    if (req.query.search) {
+      const search = req.query.search as string;
+      const professors = await searchProfessor(search);
+      const response: HttpResponse<Professor> = {
+        data: professors,
+      };
+      res.status(200).json(response);
+    } else {
+      const professors = await findAllProfessors();
+      const resBody: HttpResponse<Professor> = {
+        data: professors,
+      };
+      res.status(200).json(resBody);
+    }
   }
 };
 
