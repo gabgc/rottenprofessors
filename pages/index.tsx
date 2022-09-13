@@ -1,68 +1,50 @@
-import { University } from "@prisma/client";
+import { Professor } from "@prisma/client";
 import type { NextPage } from "next";
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import useSWR from "swr";
-import AddProfessorForm from "../components/addProfessorForm";
-import AddUniversityForm from "../components/addUniversityForm";
-import Table from "../components/table";
 import { getFetcher } from "../util/fetcher";
 import { HttpResponse } from "../util/http.response.model";
 
 const Home: NextPage = () => {
-  return (
-    <div>
-      <AdminPanel></AdminPanel>
-    </div>
-  );
-};
-
-const AdminPanel = () => {
-  const columns = useMemo(
-    () => [
-      {
-        Header: "Universities",
-        columns: [
-          {
-            Header: "Name",
-            accessor: "name",
-          },
-          {
-            Header: "Address",
-            accessor: "address",
-          },
-          {
-            Header: "City",
-            accessor: "city",
-          },
-        ],
-      },
-    ],
-    []
-  );
-
-  const { data, error } = useSWR<HttpResponse<University>>(
-    "/api/university",
+  const [professorQuery, setProfessorQuery] = useState("");
+  const [results, setResults] = useState<Professor[]>([]);
+  const { data, error } = useSWR<HttpResponse<Professor>>(
+    "/api/professor",
     getFetcher
   );
 
-  let table;
-  if (data && !error) {
-    table = <Table columns={columns} data={data.data as University[]} />;
-  } else {
-    table = <div>Loading...</div>;
-  }
+  useEffect(() => {
+    if (professorQuery.length > 0 && data) {
+      const filtered = (data.data as Professor[]).filter((professor) => {
+        const fullName = `${professor.firstName} ${professor.lastName}`;
+        return fullName.toLowerCase().includes(professorQuery.toLowerCase());
+      });
+      setResults(filtered || []);
+    } else {
+      setResults([]);
+    }
+  }, [professorQuery, data]);
 
   return (
-    <div>
-      <div className="w-full">{table}</div>
-      <div className="flex p-4">
-        <div className="w-1/2 p-6">
-          <AddProfessorForm></AddProfessorForm>
-        </div>
-
-        <div className="w-1/2 p-6">
-          <AddUniversityForm></AddUniversityForm>
-        </div>
+    <div className="bg-gradient-to-tr from-red-200 via-slate-50 to-green-200">
+      <div className="p-10 text-7xl text-center">
+        Make an informed desicion <br /> on next semester&apos;s classes
+      </div>
+      <div className="p-10 flex justify-center md:w-1/2 w-full">
+        <input
+          className="input-primary"
+          type="text"
+          placeholder="Search for a professor"
+          value={professorQuery}
+          onChange={(e) => setProfessorQuery(e.target.value)}
+        ></input>
+      </div>
+      <div>
+        {results.map((professor) => (
+          <div key={professor.id}>
+            {professor.firstName} {professor.lastName}
+          </div>
+        ))}
       </div>
     </div>
   );

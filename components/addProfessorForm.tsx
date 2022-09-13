@@ -1,26 +1,27 @@
-import { Professor } from "@prisma/client";
+import { Department, Professor, University } from "@prisma/client";
+import { Select } from "flowbite-react";
 import { useState } from "react";
+import useSWR from "swr";
+import { getFetcher } from "../util/fetcher";
+import { HttpResponse } from "../util/http.response.model";
 
 const AddProfessorForm = () => {
   const [professor, setProfessor] = useState({
     firstName: "",
     lastName: "",
     overallRating: 0,
-    universityId: 0,
+    universityId: -1,
     departmentId: null,
   } as Professor);
 
   const [loading, setLoading] = useState(false);
 
-  const preprocessProfessor = () => {
+  const handleSubmit = async (e: any) => {
+    setLoading(true);
+    e.preventDefault();
     if (professor.departmentId === 0) {
       setProfessor({ ...professor, departmentId: null });
     }
-  };
-
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
-    preprocessProfessor();
     const req = await fetch("api/professor", {
       method: "POST",
       headers: {
@@ -29,9 +30,20 @@ const AddProfessorForm = () => {
       body: JSON.stringify(professor),
     });
     const res = await req.json();
-
+    setLoading(false);
     // TODO - do somethin with res
   };
+
+  // dropdown options
+  const fetchUniversities = useSWR<HttpResponse<University>>(
+    "/api/university",
+    getFetcher
+  );
+
+  const fetchDepartments = useSWR<HttpResponse<Department>>(
+    "/api/university/department",
+    getFetcher
+  );
 
   let button;
   if (!loading) {
@@ -54,64 +66,87 @@ const AddProfessorForm = () => {
     );
   }
 
+  let form =
+    !fetchUniversities.data || !fetchDepartments.data ? (
+      <div>Loading...</div>
+    ) : (
+      <div>
+        <h1 className="w-full text-center font-bold text-lg mt-3">
+          Add Professor
+        </h1>
+        <form className="flex flex-col">
+          <div className="p-6">
+            <label>First Name</label>
+            <input
+              className="input-primary"
+              type="text"
+              value={professor.firstName}
+              onChange={(e) =>
+                setProfessor({ ...professor, firstName: e.target.value })
+              }
+            />
+          </div>
+          <div className="p-6">
+            <label>Last Name</label>
+            <input
+              className="input-primary"
+              type="text"
+              value={professor.lastName}
+              onChange={(e) =>
+                setProfessor({ ...professor, lastName: e.target.value })
+              }
+            />
+          </div>
+          <div id="select" className="p-6 block">
+            <label>University</label>
+            <Select
+              defaultValue={"0"}
+              onChange={(e) =>
+                setProfessor({
+                  ...professor,
+                  universityId: parseInt(e.target.value),
+                })
+              }
+            >
+              <option value="0">Choose a university...</option>
+              {(fetchUniversities.data?.data as University[]).map(
+                (university) => (
+                  <option key={university.id} value={university.id}>
+                    {university.name}
+                  </option>
+                )
+              )}
+            </Select>
+          </div>
+          <div className="p-6">
+            <label>Department</label>
+            <Select
+              defaultValue={"0"}
+              onChange={(e) =>
+                setProfessor({
+                  ...professor,
+                  departmentId: parseInt(e.target.value),
+                })
+              }
+            >
+              <option value="0">Choose a department...</option>
+              {(fetchDepartments.data?.data as Department[]).map(
+                (department) => (
+                  <option key={department.id} value={department.id}>
+                    {department.name}
+                  </option>
+                )
+              )}
+            </Select>
+          </div>
+          {button}
+        </form>
+      </div>
+    );
+
   return (
     <div className="flex flex-col shadow-lg rounded-lg bg-slate-300">
-      <h1 className="w-full text-center font-bold text-lg mt-3">
-        Add Professor
-      </h1>
-      <form className="flex flex-col">
-        <div className="p-6">
-          <label>First Name</label>
-          <input
-            className="input-primary"
-            type="text"
-            value={professor.firstName}
-            onChange={(e) =>
-              setProfessor({ ...professor, firstName: e.target.value })
-            }
-          />
-        </div>
-        <div className="p-6">
-          <label>Last Name</label>
-          <input
-            className="input-primary"
-            type="text"
-            value={professor.lastName}
-            onChange={(e) =>
-              setProfessor({ ...professor, lastName: e.target.value })
-            }
-          />
-        </div>
-        <div className="p-6">
-          <label>University ID</label>
-          <input
-            className="input-primary"
-            type="text"
-            value={professor.universityId}
-            onChange={(e) =>
-              setProfessor({
-                ...professor,
-                universityId: parseInt(e.target.value),
-              })
-            }
-          />
-        </div>
-        <div className="p-6">
-          <label>Department ID (Optional)</label>
-          <input
-            className="input-primary"
-            type="text"
-            value={professor.departmentId || 0}
-            onChange={(e) =>
-              setProfessor({
-                ...professor,
-                departmentId: parseInt(e.target.value),
-              })
-            }
-          />
-        </div>
-        {button}
-      </form>
+      {form}
     </div>
   );
 };
