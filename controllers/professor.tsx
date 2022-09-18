@@ -11,19 +11,39 @@ export const updateProfessor = (id: number, professor: Professor) =>
 export const deleteProfessor = (id: number) =>
   prisma.professor.delete({ where: { id } });
 
-export const searchProfessor = (search: string) => {
+export const searchProfessor = (searchStr: string) => {
+  const splitSearch = searchStr.split(" ");
+
+  if (splitSearch.length === 1) {
+    return prisma.professor.findMany({
+      where: {
+        OR: [
+          { firstName: { contains: searchStr, mode: "insensitive" } },
+          { lastName: { contains: searchStr, mode: "insensitive" } },
+        ],
+      },
+      orderBy: {
+        _relevance: {
+          fields: ["firstName"],
+          search: searchStr,
+          sort: "desc",
+        },
+      },
+      take: 10,
+    });
+  }
   return prisma.professor.findMany({
     where: {
-      OR: [
+      AND: [
         {
           firstName: {
-            contains: search,
+            contains: splitSearch[0],
             mode: "insensitive",
           },
         },
         {
           lastName: {
-            contains: search,
+            contains: splitSearch[1],
             mode: "insensitive",
           },
         },
@@ -31,9 +51,9 @@ export const searchProfessor = (search: string) => {
     },
     orderBy: {
       _relevance: {
-        fields: ["firstName", "lastName"],
-        search: search,
-        sort: "asc",
+        fields: ["lastName"],
+        search: splitSearch[1],
+        sort: "desc",
       },
     },
     take: 10,
