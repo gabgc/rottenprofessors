@@ -53,7 +53,7 @@ export const searchProfessor = (searchStr: string) => {
       _relevance: {
         fields: ["firstName", "lastName"],
         sort: "desc",
-        search: searchStr,
+        search: `${splitSearch[0]} <-> ${splitSearch[1]}`,
       },
     },
     take: 10,
