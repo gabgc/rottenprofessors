@@ -1,18 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import icon from "../public/icon.png";
-import { useEffect, useState } from "react";
 import { Bars3Icon } from "@heroicons/react/24/solid";
+import useMediaQueryMatches, {
+  MEDIA_QUERY_BREAKPOINTS,
+} from "../hooks/useMediaQueryMatches";
 
 const Navbar = () => {
-  const [matches, setMatches] = useState(false);
-
-  useEffect(() => {
-    setMatches(window.matchMedia("(min-width: 768px)").matches);
-    window
-      .matchMedia("(min-width: 768px)")
-      .addEventListener("change", (e) => setMatches(e.matches));
-  }, []);
+  const matches = useMediaQueryMatches(MEDIA_QUERY_BREAKPOINTS.md);
 
   let links;
   if (matches) {
