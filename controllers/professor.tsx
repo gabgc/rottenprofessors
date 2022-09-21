@@ -24,9 +24,9 @@ export const searchProfessor = (searchStr: string) => {
       },
       orderBy: {
         _relevance: {
-          fields: ["firstName"],
-          search: searchStr,
+          fields: ["firstName", "lastName"],
           sort: "desc",
+          search: searchStr,
         },
       },
       take: 10,
@@ -51,9 +51,9 @@ export const searchProfessor = (searchStr: string) => {
     },
     orderBy: {
       _relevance: {
-        fields: ["lastName"],
-        search: splitSearch[1],
+        fields: ["firstName", "lastName"],
         sort: "desc",
+        search: searchStr,
       },
     },
     take: 10,
