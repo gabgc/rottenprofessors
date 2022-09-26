@@ -15,12 +15,19 @@ const main = async () => {
     },
   });
 
+  const dept = await prisma.department.create({
+    data: {
+      name: "Engineering",
+    },
+  });
+
   for (var i = 0; i < data.length; i++) {
     const prof = await prisma.professor.create({
       data: {
         firstName: data[i].firstname,
         lastName: data[i].lastname,
         universityId: uni.id,
+        departmentId: dept.id,
       },
     });
     console.log(prof.id);

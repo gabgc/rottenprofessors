@@ -1,5 +1,5 @@
 import { Professor } from "@prisma/client";
-import { InferGetServerSidePropsType, NextPage } from "next";
+import { InferGetServerSidePropsType } from "next";
 import prisma from "../../prisma/client";
 
 const ProfessorPage = ({

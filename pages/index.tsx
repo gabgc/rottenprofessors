@@ -9,22 +9,23 @@ const Home: NextPage = () => {
 
   const headerText = matches ? (
     <span>
-      Make an informed desicion on <br /> next semester&apos;s classes
+      Make an informed desicion
+      <br /> on next semester&apos;s classes
     </span>
   ) : (
     <span>Make an informed desicion on next semester&apos;s classes</span>
   );
 
   return (
-    <div className="bg-gradient-to-tr from-red-200 via-slate-50 to-green-200">
-      <div className="p-10 text-3xl md:text-5xl lg:text-7xl text-center">
+    <div className="bg-gradient-to-tr from-slate-600 to-green-500">
+      <div className="p-24 text-3xl md:text-5xl lg:text-7xl text-center text-white">
         {headerText}
       </div>
-      <div className="w-full flex justify-center p-10">
-        <div className="md:w-1/2 w-full">
+      {!matches && (
+        <div className="w-full flex justify-center p-10">
           <ProfessorSearch />
         </div>
-      </div>
+      )}
     </div>
   );
 };

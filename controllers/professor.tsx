@@ -4,6 +4,11 @@ import prisma from "../prisma/client";
 export const findAllProfessors = () => prisma.professor.findMany();
 export const findProfessorById = (id: number) =>
   prisma.professor.findUnique({ where: { id } });
+export const findProfessorWithIncludeById = (id: number) =>
+  prisma.professor.findUnique({
+    where: { id },
+    include: { university: true, department: true },
+  });
 export const createProfessor = (professor: Professor) =>
   prisma.professor.create({ data: professor });
 export const updateProfessor = (id: number, professor: Professor) =>
@@ -63,6 +68,7 @@ export const searchProfessor = (searchStr: string) => {
 const professorController = {
   findAllProfessors,
   findProfessorById,
+  findProfessorWithIncludeById,
   createProfessor,
   updateProfessor,
   deleteProfessor,
