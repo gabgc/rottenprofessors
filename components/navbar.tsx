@@ -14,19 +14,19 @@ const Navbar = () => {
   if (matches) {
     links = (
       <div className="flex justify-end mr-4 w-1/3">
-        <div className="flex justify-between">
+        <div className="flex items-center justify-between">
           <Link href={"/university"}>
-            <a className="font-bold flex items-center m-2 px-3 py-2 text-slate-700 rounded-lg hover:bg-slate-100 hover:text-slate-900 duration-200">
+            <a className="font-bold m-2 px-3 py-2 text-slate-700 rounded-lg hover:bg-slate-100 hover:text-slate-900 duration-200">
               Universities
             </a>
           </Link>
           <Link href={"/professor"}>
-            <a className="font-bold flex items-center m-2 px-3 py-2 text-slate-700 rounded-lg hover:bg-slate-100 hover:text-slate-900 duration-200">
+            <a className="font-bold m-2 px-3 py-2 text-slate-700 rounded-lg hover:bg-slate-100 hover:text-slate-900 duration-200">
               Professors
             </a>
           </Link>
           <Link href={"/login"}>
-            <a className="font-bold flex items-center m-2 px-3 py-2 bg-green-300 rounded-lg hover:bg-green-500 hover:text-white duration-200 whitespace-nowrap">
+            <a className="font-bold m-2 px-3 py-2 bg-green-300 rounded-lg hover:bg-green-500 hover:text-white duration-200">
               Login
             </a>
           </Link>
@@ -42,7 +42,7 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="sticky top-0 z-50 w-full flex justify-between shadow-lg">
+    <nav className="sticky top-0 z-50 w-full flex justify-between shadow-lg bg-white">
       <div className="w-1/3 flex flex-shrink-0 items-center m-3">
         <Link href={"/"}>
           <a>

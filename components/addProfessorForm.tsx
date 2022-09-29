@@ -1,7 +1,7 @@
 import { Department, Professor, University } from "@prisma/client";
 import { Select } from "flowbite-react";
 import { useState } from "react";
-import useSWR from "swr";
+import useSWRImmutable from "swr/immutable";
 import { getFetcher } from "../util/fetcher";
 import { HttpResponse } from "../util/http.response.model";
 
@@ -35,12 +35,12 @@ const AddProfessorForm = () => {
   };
 
   // dropdown options
-  const fetchUniversities = useSWR<HttpResponse<University>>(
+  const fetchUniversities = useSWRImmutable<HttpResponse<University>>(
     "/api/university",
     getFetcher
   );
 
-  const fetchDepartments = useSWR<HttpResponse<Department>>(
+  const fetchDepartments = useSWRImmutable<HttpResponse<Department>>(
     "/api/university/department",
     getFetcher
   );

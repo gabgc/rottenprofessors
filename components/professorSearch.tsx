@@ -72,12 +72,15 @@ const ProfessorSearch = () => {
               key={professor.id}
             >
               <Link href={`/professor/${professor.id}`}>
-                <a>
-                  <span>
+                <a
+                  className="professor-search-result"
+                  onClick={() => setProfessorQuery("")}
+                >
+                  <div>
                     {formatResult(
                       `${professor.firstName} ${professor.lastName}`
                     )}
-                  </span>
+                  </div>
                 </a>
               </Link>
             </li>
@@ -89,7 +92,14 @@ const ProfessorSearch = () => {
   };
 
   return (
-    <div className="w-full relative">
+    <div
+      className="w-full relative"
+      onBlur={(e) => {
+        e.relatedTarget?.className === "professor-search-result"
+          ? null
+          : setProfessorQuery("");
+      }}
+    >
       <div className="flex justify-center relative">
         <input
           className="input-primary"
