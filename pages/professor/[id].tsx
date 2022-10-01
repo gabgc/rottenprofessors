@@ -10,7 +10,7 @@ import Image from "next/image";
 import defaultPic from "../../public/defaultpic.png";
 import { NextPageContext } from "next";
 import professorController from "../../controllers/professor";
-import { Label, Textarea } from "flowbite-react";
+import { Textarea } from "flowbite-react";
 import useSWRImmutable from "swr/immutable";
 import { HttpResponse } from "../../util/http.response.model";
 import { getFetcher } from "../../util/fetcher";
@@ -38,7 +38,7 @@ const ProfessorPageWrapper = ({
 const ProfessorPage = (props: ProfessorPageProps) => {
   return (
     <>
-      <div className="p-2 lg:p-5 grid grid-cols-1 lg:grid-cols-2">
+      <div className="p-2 lg:p-5 grid grid-cols-1 md:grid-cols-2">
         <div className="m-2">
           <ProfessorBasicInfo professor={props.professor} />
         </div>
@@ -47,7 +47,7 @@ const ProfessorPage = (props: ProfessorPageProps) => {
         </div>
       </div>
       <div className="flex justify-center">
-        <div className="w-full lg:w-4/5 mx-3">
+        <div className="w-full max-w-4xl mx-3">
           <CommentSection professor={props.professor}></CommentSection>
         </div>
       </div>
@@ -144,8 +144,8 @@ const CommentSection = (props: ProfessorPageProps) => {
           Add a review
         </button>
       </div>
-      <hr className=" border border-black"></hr>
-      {commentsSection}
+      <hr className="bg-black border border-black"></hr>
+      <div className="m-6 ml-0">{commentsSection}</div>
     </>
   );
 };
