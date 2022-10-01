@@ -47,7 +47,7 @@ const ProfessorPage = (props: ProfessorPageProps) => {
         </div>
       </div>
       <div className="flex justify-center">
-        <div className="w-full max-w-4xl mx-3">
+        <div className="w-[1024px] m-4 shrink">
           <CommentSection professor={props.professor}></CommentSection>
         </div>
       </div>
@@ -132,21 +132,23 @@ const CommentSection = (props: ProfessorPageProps) => {
   };
 
   return addingReview ? (
-    <AddReview cancel={cancelReview} />
+    <div>
+      <AddReview cancel={cancelReview} professor={props} />
+    </div>
   ) : (
-    <>
+    <div>
       <div className="flex justify-between items-center">
         <span className=" font-bold text-2xl">Comments</span>
         <button
           onClick={() => setAddingReview(true)}
-          className="p-4 m-6 mr-0 bg-slate-700 text-white font-semibold rounded-lg shadow-md hover:bg-slate-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75"
+          className="p-4 m-6 mr-0 bg-slate-700 text-white font-semibold rounded-lg shadow-md hover:bg-slate-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 duration-300"
         >
           Add a review
         </button>
       </div>
       <hr className="bg-black border border-black"></hr>
       <div className="m-6 ml-0">{commentsSection}</div>
-    </>
+    </div>
   );
 };
 
@@ -168,18 +170,43 @@ const Comment = (props: { data: CommentProps }) => {
   );
 };
 
-const AddReview = (props: { cancel: () => void }) => {
+const AddReview = (props: {
+  cancel: () => void;
+  professor: ProfessorPageProps;
+}) => {
+  const [comment, setComment] = useState({
+    comment: "",
+    courseId: -1,
+    isAnonymous: false,
+    rating1: 0,
+    rating2: 0,
+    rating3: 0,
+    rating4: 0,
+  });
+
   return (
     <form className="p-3">
-      <div className="flex justify-between items-center">
-        <div className=" text-lg">Add your review below</div>
-        <button onClick={() => props.cancel()}>
+      <div className="m-3 flex justify-between items-center">
+        <div className="font-bold text-lg">Add your review below</div>
+        <button
+          className="hover:bg-slate-500 hover:outline-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 duration-300"
+          onClick={() => props.cancel()}
+        >
           <XMarkIcon height="2em" width="2em"></XMarkIcon>
         </button>
       </div>
       <div></div>
       <Textarea id="comment" placeholder="Leave a comment..." rows={4} />
     </form>
+  );
+};
+
+const CourseSearch = () => {
+  const [query, setQuery] = useState("");
+
+  const { data, error } = useSWRImmutable<HttpResponse<Course>>(
+    query && query.length > 0 ? "/api/university/course?search=" + query : null,
+    getFetcher
   );
 };
 

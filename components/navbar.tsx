@@ -8,40 +8,48 @@ import useMediaQueryMatches, {
 import ProfessorSearch from "./professorSearch";
 
 const Navbar = () => {
-  const matches = useMediaQueryMatches(MEDIA_QUERY_BREAKPOINTS.md);
+  const matches = useMediaQueryMatches(MEDIA_QUERY_BREAKPOINTS.lg);
 
   let links;
   if (matches) {
     links = (
-      <div className="flex items-center justify-between">
-        <Link href={"/university"}>
-          <a className="font-bold m-2 px-3 py-2 text-slate-700 rounded-lg hover:bg-slate-100 hover:text-slate-900 duration-200">
-            Universities
-          </a>
-        </Link>
-        <Link href={"/professor"}>
-          <a className="font-bold m-2 px-3 py-2 text-slate-700 rounded-lg hover:bg-slate-100 hover:text-slate-900 duration-200">
-            Professors
-          </a>
-        </Link>
-        <Link href={"/login"}>
-          <a className="font-bold m-2 px-3 py-2 bg-green-300 rounded-lg hover:bg-green-500 hover:text-white duration-200">
-            Login
-          </a>
-        </Link>
+      <div className="ml-auto flex justify-end">
+        <div className="grid grid-cols-3 items-center ">
+          <div>
+            <Link href={"/university"}>
+              <a className="font-bold m-2 px-3 py-2 text-slate-700 rounded-lg hover:bg-slate-100 hover:text-slate-900 duration-200">
+                Universities
+              </a>
+            </Link>
+          </div>
+          <div>
+            <Link href={"/professor"}>
+              <a className="font-bold m-2 px-3 py-2 text-slate-700 rounded-lg hover:bg-slate-100 hover:text-slate-900 duration-200">
+                Professors
+              </a>
+            </Link>
+          </div>
+          <div>
+            <Link href={"/login"}>
+              <a className="font-bold m-2 px-3 py-2 bg-green-300 rounded-lg hover:bg-green-500 hover:text-white duration-200">
+                Login
+              </a>
+            </Link>
+          </div>
+        </div>
       </div>
     );
   } else {
     links = (
-      <div className="w-1/2 flex justify-end items-center mr-4">
+      <div className="flex justify-end items-center mr-4">
         <Bars3Icon className="h-8 w-8 "></Bars3Icon>
       </div>
     );
   }
 
   return (
-    <nav className="sticky top-0 z-50 w-full flex justify-between shadow-lg bg-white">
-      <div className="w-1/3 flex items-center m-3">
+    <nav className="sticky top-0 z-50 w-full grid grid-cols-2 lg:grid-cols-3 shadow-lg bg-white">
+      <div className="m-3 flex items-center">
         <Link href={"/"}>
           <a>
             <div className="flex items-center">
@@ -56,7 +64,7 @@ const Navbar = () => {
         </Link>
       </div>
       {matches && (
-        <div className="flex items-center max-w-screen-md">
+        <div className="flex items-center m-3">
           <ProfessorSearch></ProfessorSearch>
         </div>
       )}
