@@ -1,6 +1,10 @@
 import { Course } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
-import { createCourse, findAllCourses } from "../../../../controllers/course";
+import {
+  createCourse,
+  findAllCourses,
+  searchCourses,
+} from "../../../../controllers/course";
 import { HttpResponse } from "../../../../util/http.response.model";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -17,11 +21,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
   } else if (req.method === "GET") {
     // TODO - course by department, course by university, course by professor
-    const universities = await findAllCourses();
-    const body: HttpResponse<Course> = {
-      data: universities,
-    };
-    res.status(200).json(body);
+    if (req.query.search) {
+      const search = req.query.search as string;
+      const courses = await searchCourses(search);
+      const body: HttpResponse<Course> = {
+        data: courses,
+      };
+      res.status(200).json(body);
+    }
   }
 };
 

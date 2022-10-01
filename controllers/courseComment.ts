@@ -4,15 +4,17 @@ import prisma from "../prisma/client";
 export const findAllCourseComments = () => prisma.courseComment.findMany();
 export const findAllCourseCommentsByProfessorId = (professorId: number) =>
   prisma.courseComment.findMany({
-    include: {
-      Course: true,
-    },
     where: {
       Course: {
-        professorId: professorId,
+        Professor: {
+          every: {
+            id: professorId,
+          },
+        },
       },
     },
   });
+
 export const findCourseCommentById = (id: number) =>
   prisma.courseComment.findUnique({ where: { id } });
 export const createCourseComment = (CourseComment: CourseComment) =>

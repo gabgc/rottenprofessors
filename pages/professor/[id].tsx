@@ -10,7 +10,7 @@ import Image from "next/image";
 import defaultPic from "../../public/defaultpic.png";
 import { NextPageContext } from "next";
 import professorController from "../../controllers/professor";
-import { Textarea } from "flowbite-react";
+import { Textarea, TextInput } from "flowbite-react";
 import useSWRImmutable from "swr/immutable";
 import { HttpResponse } from "../../util/http.response.model";
 import { getFetcher } from "../../util/fetcher";
@@ -184,6 +184,10 @@ const AddReview = (props: {
     rating4: 0,
   });
 
+  const setCourse = (course: Course) => {
+    setComment({ ...comment, courseId: course.id });
+  };
+
   return (
     <form className="p-3">
       <div className="m-3 flex justify-between items-center">
@@ -195,18 +199,122 @@ const AddReview = (props: {
           <XMarkIcon height="2em" width="2em"></XMarkIcon>
         </button>
       </div>
-      <div></div>
+      <div className="m-3">
+        <label className="text-md">
+          Which course did you take with {props.professor.professor.firstName}?
+        </label>
+        <CourseSearch setCourse={setCourse} />
+      </div>
       <Textarea id="comment" placeholder="Leave a comment..." rows={4} />
     </form>
   );
 };
 
-const CourseSearch = () => {
+const CourseSearchOrNew = (props: { setCourse: (course: Course) => void }) => {
+  const [addingCourse, setAddingCourse] = useState(false);
+};
+
+const CourseSearch = (props: { setCourse: (course: Course) => void }) => {
   const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState("");
 
   const { data, error } = useSWRImmutable<HttpResponse<Course>>(
-    query && query.length > 0 ? "/api/university/course?search=" + query : null,
+    selected === "" && query && query.length > 0
+      ? "/api/university/course?search=" + query
+      : null,
     getFetcher
+  );
+
+  const formatResult = (courseCode: string) => {
+    const lowerCaseFullName = courseCode.toLowerCase();
+    const lowerCaseQuery = query.toLowerCase();
+    const index = lowerCaseFullName.indexOf(lowerCaseQuery);
+    if (index === 0) {
+      return (
+        <span>
+          <b>{courseCode.substring(0, query.length)}</b>
+          {courseCode.substring(query.length, courseCode.length)}
+        </span>
+      );
+    } else if (index !== -1) {
+      const beginning = courseCode.substring(0, index);
+      const middle = courseCode.substring(index, index + query.length);
+      const end = courseCode.substring(index + query.length, courseCode.length);
+      return (
+        <span>
+          {beginning}
+          <b>{middle}</b>
+          {end}
+        </span>
+      );
+    }
+    return <span>{courseCode}</span>; // this shouldn't happen but just in case
+  };
+
+  const renderResults = () => {
+    // render loading
+    if (selected === "" && query.length > 0 && !data && !error) {
+      return (
+        <ul className="search-result bg-white border border-gray-100 w-full absolute">
+          Loading...
+        </ul>
+      );
+    }
+    // render results
+    if (data && Array.isArray(data.data)) {
+      if (data.data.length === 0) {
+        return (
+          <ul className="bg-white border border-gray-100 w-full absolute">
+            <li className="search-result pl-8 pr-2 py-1 border-b-2 border-gray-100 relative cursor-pointer text-gray-600">
+              No results. Click to add a new course.
+            </li>
+          </ul>
+        );
+      }
+      return (
+        <ul className="bg-white border border-gray-100 w-full absolute">
+          {data.data.map((course) => (
+            <li
+              className="pl-8 pr-2 py-1 border-b-2 border-gray-100 relative cursor-pointer hover:bg-green-50 hover:text-gray-900 search-result"
+              key={course.id}
+              onClick={() => {
+                console.log(course);
+                props.setCourse(course);
+                setSelected(course.code);
+              }}
+            >
+              {formatResult(course.code)}
+            </li>
+          ))}
+        </ul>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div
+      onBlur={(e) => {
+        console.log(e.relatedTarget);
+      }}
+      className="w-full relative"
+    >
+      <TextInput
+        placeholder="Search for a course"
+        value={selected === "" ? query : selected}
+        onFocus={() => {
+          setQuery(selected);
+          setSelected("");
+        }}
+        required={true}
+        onChange={(e) => {
+          if (selected === "") {
+            setQuery(e.target.value);
+          }
+        }}
+      ></TextInput>
+      {renderResults()}
+    </div>
   );
 };
 

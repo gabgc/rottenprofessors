@@ -48,15 +48,21 @@ model Professor {
 model Course {
   id             Int             @id @default(autoincrement())
   code           String          @unique
-  name           String?
+  name           String
   description    String?
-  professorId    Int?
-  departmentId   Int?
-  section        String?
-  year           String?
-  Department     Department?     @relation(fields: [departmentId], references: [id])
-  Professor      Professor?      @relation(fields: [professorId], references: [id])
+  departmentId   Int
+  Department     Department      @relation(fields: [departmentId], references: [id])
   courseComments CourseComment[]
+  Professor      Professor[]
+  CourseSections CourseSection[]
+}
+
+model CourseSection {
+  id       Int    @id @default(autoincrement())
+  courseId Int
+  year     Int
+  semester String
+  Course   Course @relation(fields: [courseId], references: [id])
 }
 
 model Department {
