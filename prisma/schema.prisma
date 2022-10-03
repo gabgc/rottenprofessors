@@ -22,12 +22,13 @@ model User {
 }
 
 model University {
-  id            Int         @id @default(autoincrement())
-  name          String      @unique
+  id            Int          @id @default(autoincrement())
+  name          String       @unique
   address       String
   city          String
-  rating        Int         @default(0)
+  rating        Int          @default(0)
   emblemPicture String?
+  Department    Department[]
   Professor     Professor[]
   User          User[]
 }
@@ -53,23 +54,25 @@ model Course {
   departmentId   Int
   Department     Department      @relation(fields: [departmentId], references: [id])
   courseComments CourseComment[]
-  Professor      Professor[]
   CourseSections CourseSection[]
+  Professor      Professor[]
 }
 
 model CourseSection {
   id       Int    @id @default(autoincrement())
   courseId Int
-  year     Int
   semester String
+  year     Int
   Course   Course @relation(fields: [courseId], references: [id])
 }
 
 model Department {
-  id        Int         @id @default(autoincrement())
-  name      String
-  Course    Course[]
-  Professor Professor[]
+  id           Int         @id @default(autoincrement())
+  name         String
+  universityId Int
+  university   University  @relation(fields: [universityId], references: [id])
+  Course       Course[]
+  Professor    Professor[]
 }
 
 model CourseComment {
@@ -83,6 +86,7 @@ model CourseComment {
   rating2     Int
   rating3     Int
   rating4     Int
+  userGrade   String?
   Course      Course   @relation(fields: [courseId], references: [id])
   user        User?    @relation(fields: [userId], references: [id])
 }
