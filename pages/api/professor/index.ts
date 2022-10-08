@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { Professor } from "@prisma/client";
-import prisma from "../../../prisma/client";
 import { HttpResponse } from "../../../util/http.response.model";
 import {
   createProfessor,
