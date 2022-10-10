@@ -10,8 +10,11 @@ import { HttpResponse } from "../../../../../util/http.response.model";
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
     if (req.body) {
-      const courseComment = req.body as CourseComment;
-      const newCourseComment = await createCourseComment(courseComment);
+      const courseComment = req.body;
+      const newCourseComment = await createCourseComment(
+        courseComment,
+        courseComment.professorId
+      );
       const body: HttpResponse<CourseComment> = {
         data: newCourseComment,
       };

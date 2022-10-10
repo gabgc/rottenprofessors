@@ -10,13 +10,15 @@ import Image from "next/image";
 import defaultPic from "../../public/defaultpic.png";
 import { NextPageContext } from "next";
 import professorController from "../../controllers/professor";
-import { Select, Textarea, TextInput } from "flowbite-react";
+import { Modal, Select, Textarea, TextInput } from "flowbite-react";
 import useSWRImmutable from "swr/immutable";
 import { HttpResponse } from "../../util/http.response.model";
 import { getFetcher } from "../../util/fetcher";
 import { useState } from "react";
 import { StarIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import useSWR from "swr";
+import AddCourseForm from "../../components/addCourseForm";
+import { useFormik } from "formik";
 
 interface ProfessorPageProps {
   professor: Professor & {
@@ -103,7 +105,7 @@ type CommentProps = {
 };
 
 const CommentSection = (props: ProfessorPageProps) => {
-  const { data, error } = useSWRImmutable<HttpResponse<CommentProps>>(
+  const { data, error, mutate } = useSWR<HttpResponse<CommentProps>>(
     "/api/university/course/comment?professorId=" + props.professor.id,
     getFetcher
   );
@@ -132,9 +134,17 @@ const CommentSection = (props: ProfessorPageProps) => {
     setAddingReview(false);
   };
 
+  const reloadComments = (newComment: CommentProps) => {
+    mutate({ ...data, data: [...(data?.data as CommentProps[]), newComment] });
+  };
+
   return addingReview ? (
     <div>
-      <AddReview cancel={cancelReview} professor={props} />
+      <AddReview
+        cancel={cancelReview}
+        reload={reloadComments}
+        professor={props}
+      />
     </div>
   ) : (
     <div>
@@ -173,11 +183,11 @@ const Comment = (props: { data: CommentProps }) => {
 
 type Review = {
   course: Course | null;
-  section: string;
-  year: string;
-  semester: string;
-  grade: string;
-  comment: string;
+  section: string | null;
+  year: string | null;
+  semester: string | null;
+  grade: string | null;
+  comment: string | null;
   isAnonymous: boolean;
   rating1: number;
   rating2: number;
@@ -187,46 +197,81 @@ type Review = {
 
 const AddReview = (props: {
   cancel: () => void;
+  reload: (newComment: CommentProps) => void;
   professor: ProfessorPageProps;
 }) => {
-  const [review, setReview] = useState<Review>({
-    comment: "",
-    course: null,
-    isAnonymous: false,
-    section: "",
-    year: "",
-    semester: "",
-    grade: "",
-    rating1: 0,
-    rating2: 0,
-    rating3: 0,
-    rating4: 0,
+  const [loading, setLoading] = useState(false);
+  const formik = useFormik<Review>({
+    initialValues: {
+      comment: null,
+      course: null,
+      isAnonymous: false,
+      section: null,
+      year: null,
+      semester: null,
+      grade: null,
+      rating1: 0,
+      rating2: 0,
+      rating3: 0,
+      rating4: 0,
+    },
+    onSubmit: async (values) => {
+      setLoading(true);
+
+      const {
+        comment,
+        course,
+        isAnonymous,
+        section,
+        year,
+        semester,
+        grade,
+        rating1,
+        rating2,
+        rating3,
+        rating4,
+      } = values;
+
+      const courseComment = {
+        comment,
+        courseId: course?.id,
+        isAnonymous,
+        userId: null,
+        rating1,
+        rating2,
+        rating3,
+        rating4,
+        userGrade: grade,
+      };
+
+      const req = await fetch("/api/university/course/comment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          courseComment,
+          professorId: props.professor.professor.id,
+        }),
+      });
+      const res = await req.json();
+
+      if (res.data) {
+        props.cancel();
+        props.reload(res.data as CommentProps);
+
+        // TODO - add section API call when ready
+      }
+      setLoading(false);
+    },
   });
 
-  const setCourse = (course: Course | null) => {
-    setReview({ ...review, course: course });
-  };
-
   const setRating = (rating: number, index: number) => {
-    switch (index) {
-      case 1:
-        setReview({ ...review, rating1: rating });
-        break;
-      case 2:
-        setReview({ ...review, rating2: rating });
-        break;
-      case 3:
-        setReview({ ...review, rating3: rating });
-        break;
-      case 4:
-        setReview({ ...review, rating4: rating });
-        break;
-    }
-    console.log(review);
+    formik.setFieldValue(`rating${index}`, rating);
   };
 
   return (
-    <form className="p-3">
+    <form className="p-3" onSubmit={formik.handleSubmit}>
       <div className="m-3 flex justify-between items-center">
         <div className="font-bold text-lg">Add your review below</div>
         <button
@@ -241,14 +286,15 @@ const AddReview = (props: {
           Which course did you take with {props.professor.professor.firstName}?
         </label>
         <div className="mt-3">
-          <SearchOrAddCourse
-            setCourse={setCourse}
-            selectedCourse={review.course}
+          <CourseSearch
+            setCourse={(course) => {
+              formik.setFieldValue("course", course);
+            }}
           />
         </div>
       </div>
 
-      {review.course && (
+      {formik.values.course && (
         <div>
           <div className="m-6">
             <div className="p-3 border border-slate-500 rounded-lg">
@@ -261,13 +307,14 @@ const AddReview = (props: {
               </div>
 
               <div className="m-3">
-                <label className="text-md">Grade Obtained</label>
+                <label htmlFor="grade" className="text-md">
+                  Grade Obtained
+                </label>
                 <Select
                   defaultValue={"0"}
                   id="grade"
-                  onChange={(e) =>
-                    setReview({ ...review, grade: e.target.value })
-                  }
+                  name="grade"
+                  onChange={formik.handleChange}
                 >
                   <option value="0">Select a letter grade...</option>
                   <option value="a">A</option>
@@ -279,23 +326,25 @@ const AddReview = (props: {
               </div>
 
               <div className="m-3">
-                <label className="text-md">Section</label>
+                <label htmlFor="section" className="text-md">
+                  Section
+                </label>
                 <TextInput
                   id="section"
+                  name="section"
                   placeholder="e.g. 010"
-                  onChange={(e) =>
-                    setReview({ ...review, section: e.target.value })
-                  }
+                  onChange={formik.handleChange}
                 ></TextInput>
               </div>
               <div className="m-3">
-                <label className="text-md">Year</label>
+                <label htmlFor="year" className="text-md">
+                  Year
+                </label>
                 <Select
                   defaultValue={"0"}
                   id="year"
-                  onChange={(e) =>
-                    setReview({ ...review, year: e.target.value })
-                  }
+                  name="year"
+                  onChange={formik.handleChange}
                 >
                   <option value="0">Select a year...</option>
                   {Array.from(
@@ -309,13 +358,14 @@ const AddReview = (props: {
                 </Select>
               </div>
               <div className="m-3">
-                <label className="text-md">Semester</label>
+                <label htmlFor="semester" className="text-md">
+                  Semester
+                </label>
                 <Select
                   defaultValue={"0"}
                   id="semester"
-                  onChange={(e) =>
-                    setReview({ ...review, semester: e.target.value })
-                  }
+                  name="semester"
+                  onChange={formik.handleChange}
                 >
                   <option value="0">Select a semester...</option>
                   <option value="fall">Fall</option>
@@ -327,9 +377,9 @@ const AddReview = (props: {
 
           <div>
             <div className="m-3 p-3">
-              <label className="text-md">
+              <div className="text-center lg:text-left text-md">
                 Rate your experience with {props.professor.professor.firstName}
-              </label>
+              </div>
               <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="flex flex-col items-center">
                   <label className="text-sm">Ease of Learning</label>
@@ -353,15 +403,28 @@ const AddReview = (props: {
               <label className="text-md">Leave a comment (optional)</label>
               <Textarea
                 id="comment"
+                name="comment"
                 rows={4}
-                onChange={(e) =>
-                  setReview({ ...review, comment: e.target.value })
-                }
+                onChange={formik.handleChange}
               />
             </div>
           </div>
         </div>
       )}
+      <div className="m-3 flex items-center justify-center">
+        {loading ? (
+          <button className="disabled p-4 m-6 bg-slate-500 text-slate-100 font-semibold rounded-lg shadow-md cursor-not-allowed">
+            Submitting...
+          </button>
+        ) : (
+          <button
+            type="submit"
+            className="p-4 m-6  bg-slate-700 text-white font-semibold rounded-lg shadow-md hover:bg-slate-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 duration-300"
+          >
+            Submit Review
+          </button>
+        )}
+      </div>
     </form>
   );
 };
@@ -437,137 +500,15 @@ const Rating = (props: { setRating: (rating: number) => void }) => {
   );
 };
 
-const SearchOrAddCourse = (props: {
-  setCourse: (course: Course | null) => void;
-  selectedCourse: Course | null;
-}) => {
-  const [addingCourse, setAddingCourse] = useState(false);
-
-  return addingCourse ? (
-    <AddCourse
-      setCourse={props.setCourse}
-      cancel={() => setAddingCourse(false)}
-    />
-  ) : (
-    <CourseSearch
-      setCourse={props.setCourse}
-      addCourse={() => setAddingCourse(true)}
-      selectedCourse={props.selectedCourse}
-    />
-  );
-};
-
-const AddCourse = (props: {
-  setCourse: (course: Course) => void;
-  cancel: () => void;
-}) => {
-  const [course, setCourse] = useState({
-    name: "",
-    code: "",
-    departmentId: -1,
-  });
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-
-    setLoading(true);
-    const response = await fetch("/api/university/course", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(course),
-    });
-    const data = await response.json();
-    setLoading(false);
-    if (data.data) {
-      props.setCourse(data.data);
-      props.cancel();
-    }
-    // TODO handle error
-  };
-
-  const fetchDepartments = useSWRImmutable<HttpResponse<Department>>(
-    "/api/university/department",
-    getFetcher
-  );
-
-  return (
-    <div className="p-3 border border-slate-500 rounded-lg">
-      <div className="m-3 flex justify-between items-center">
-        <div className="font-bold text-lg">Add a new course</div>
-        <button
-          className="hover:bg-slate-500 hover:outline-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 duration-300"
-          onClick={() => props.cancel()}
-        >
-          <XMarkIcon height="2em" width="2em"></XMarkIcon>
-        </button>
-      </div>
-      <div className="m-3">
-        <label className="text-md">Course name</label>
-        <TextInput
-          id="name"
-          placeholder="e.g. Introduction to Computer Science"
-          onChange={(e) => setCourse({ ...course, name: e.target.value })}
-        ></TextInput>
-      </div>
-      <div className="m-3">
-        <label className="text-md">Course code</label>
-        <TextInput
-          id="code"
-          placeholder="e.g. COMP 1000"
-          onChange={(e) => setCourse({ ...course, code: e.target.value })}
-        ></TextInput>
-      </div>
-      <div className="m-3">
-        <label className="text-md">Department</label>
-        {!fetchDepartments.data ? (
-          <div>Loading...</div>
-        ) : (
-          <Select
-            defaultValue={"0"}
-            onChange={(e) =>
-              setCourse({ ...course, departmentId: +e.target.value })
-            }
-          >
-            <option value="0">Choose a department...</option>
-            {(fetchDepartments.data?.data as Department[]).map((department) => (
-              <option key={department.id} value={department.id}>
-                {department.name}
-              </option>
-            ))}
-          </Select>
-        )}
-      </div>
-      <div className="m-3 flex items-center justify-center">
-        {loading ? (
-          <button className="disabled p-4 m-6 bg-slate-500 text-slate-100 font-semibold rounded-lg shadow-md cursor-not-allowed">
-            Adding...
-          </button>
-        ) : (
-          <button
-            className="p-4 m-6  bg-slate-700 text-white font-semibold rounded-lg shadow-md hover:bg-slate-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 duration-300"
-            onClick={handleSubmit}
-          >
-            Add course
-          </button>
-        )}
-      </div>
-    </div>
-  );
-};
-
 const CourseSearch = (props: {
   setCourse: (course: Course | null) => void;
-  addCourse: () => void;
-  selectedCourse: Course | null;
 }) => {
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<Course | null>(props.selectedCourse);
+  const [selected, setSelected] = useState<Course | null>(null);
+  const [addingCourse, setAddingCourse] = useState(false);
 
   const { data, error } = useSWR<HttpResponse<Course>>(
-    selected === null && query && query.length > 0
+    !selected && query && query.length > 0
       ? "/api/university/course?search=" + query
       : null,
     getFetcher
@@ -616,7 +557,7 @@ const CourseSearch = (props: {
             <li
               tabIndex={0}
               className="search-result pl-8 pr-2 py-1 border-b-2 border-gray-100 relative cursor-pointer text-gray-600"
-              onClick={() => props.addCourse()}
+              onClick={() => setAddingCourse(true)}
             >
               No results. Click to add a new course.
             </li>
@@ -647,28 +588,46 @@ const CourseSearch = (props: {
   return (
     <div
       onBlur={(e) => {
-        if (!e.relatedTarget?.classList.contains("search-result")) {
+        if (
+          !e.relatedTarget?.classList.contains("search-result") &&
+          !selected
+        ) {
           setQuery("");
-          setSelected(null);
           props.setCourse(null);
         }
       }}
       className="w-full relative"
     >
-      <TextInput
-        placeholder="Search for a course"
-        value={selected === null ? query : selected.code}
-        onFocus={() => {
-          setQuery(selected?.code || "");
-          setSelected(null);
-        }}
-        required={true}
-        onChange={(e) => {
-          if (!selected) {
+      <Modal show={addingCourse} onClose={() => setAddingCourse(false)}>
+        <Modal.Header>
+          <span className="text-lg">Add a course</span>
+        </Modal.Header>
+        <Modal.Body>
+          <AddCourseForm
+            setCourse={(course) => {
+              props.setCourse(course);
+              setSelected(course);
+            }}
+            close={() => setAddingCourse(false)}
+          ></AddCourseForm>
+        </Modal.Body>
+      </Modal>
+      <div>
+        <TextInput
+          placeholder="Search for a course"
+          value={!selected ? query : selected.code}
+          onKeyDown={() => {
+            if (selected) {
+              setQuery(selected.code);
+              setSelected(null);
+              props.setCourse(null);
+            }
+          }}
+          onChange={(e) => {
             setQuery(e.target.value);
-          }
-        }}
-      ></TextInput>
+          }}
+        ></TextInput>
+      </div>
       {renderResults()}
     </div>
   );
