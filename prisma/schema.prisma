@@ -63,6 +63,7 @@ model CourseSection {
   courseId Int
   semester String
   year     Int
+  section  String
   Course   Course @relation(fields: [courseId], references: [id])
 }
 

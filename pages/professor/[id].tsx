@@ -14,11 +14,12 @@ import { Modal, Select, Textarea, TextInput } from "flowbite-react";
 import useSWRImmutable from "swr/immutable";
 import { HttpResponse } from "../../util/http.response.model";
 import { getFetcher } from "../../util/fetcher";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StarIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import useSWR from "swr";
 import AddCourseForm from "../../components/addCourseForm";
 import { useFormik } from "formik";
+import { Review } from "../../controllers/models";
 
 interface ProfessorPageProps {
   professor: Professor & {
@@ -100,9 +101,7 @@ const ProfessorCourseStatistics = (props: ProfessorPageProps) => {
   );
 };
 
-type CommentProps = {
-  comment: CourseComment & { course: Course };
-};
+type CommentProps = CourseComment & { Course: Course };
 
 const CommentSection = (props: ProfessorPageProps) => {
   const { data, error, mutate } = useSWR<HttpResponse<CommentProps>>(
@@ -122,8 +121,8 @@ const CommentSection = (props: ProfessorPageProps) => {
           <div>No comments yet</div>
         ) : (
           <div>
-            {data.data.map((data) => (
-              <Comment key={data.comment.id} data={data}></Comment>
+            {data.data.map((comment) => (
+              <Comment key={comment.id} data={comment}></Comment>
             ))}
           </div>
         );
@@ -164,35 +163,21 @@ const CommentSection = (props: ProfessorPageProps) => {
 };
 
 const Comment = (props: { data: CommentProps }) => {
-  const { comment } = props.data;
+  const { comment, Course } = props.data;
   return (
     <div className="flex flex-col justify-center items-center">
       <div className="flex justify-between items-center w-full">
         <div className="flex flex-col justify-center items-center">
           <div>
-            Comment for {comment.course.name} ({comment.course.code})
+            Comment for {Course.name} ({Course.code})
           </div>
         </div>
       </div>
       <div className="flex justify-center items-center w-full">
-        <div className="text-lg">{comment.comment}</div>
+        <div className="text-lg">{comment}</div>
       </div>
     </div>
   );
-};
-
-type Review = {
-  course: Course | null;
-  section: string | null;
-  year: string | null;
-  semester: string | null;
-  grade: string | null;
-  comment: string | null;
-  isAnonymous: boolean;
-  rating1: number;
-  rating2: number;
-  rating3: number;
-  rating4: number;
 };
 
 const AddReview = (props: {
@@ -218,39 +203,13 @@ const AddReview = (props: {
     onSubmit: async (values) => {
       setLoading(true);
 
-      const {
-        comment,
-        course,
-        isAnonymous,
-        section,
-        year,
-        semester,
-        grade,
-        rating1,
-        rating2,
-        rating3,
-        rating4,
-      } = values;
-
-      const courseComment = {
-        comment,
-        courseId: course?.id,
-        isAnonymous,
-        userId: null,
-        rating1,
-        rating2,
-        rating3,
-        rating4,
-        userGrade: grade,
-      };
-
       const req = await fetch("/api/university/course/comment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          courseComment,
+          review: values,
           professorId: props.professor.professor.id,
         }),
       });
@@ -266,151 +225,168 @@ const AddReview = (props: {
     },
   });
 
+  useEffect(() => {
+    if (formik.values.course) {
+      document.getElementById("transition")?.classList.remove("max-h-0");
+      document.getElementById("transition")?.classList.add("max-h-[3000px]");
+    } else {
+      document.getElementById("transition")?.classList.remove("max-h-[3000px]");
+      document.getElementById("transition")?.classList.add("max-h-0");
+    }
+    return () => {
+      document.getElementById("transition")?.classList.remove("max-h-[3000px]");
+      document.getElementById("transition")?.classList.add("max-h-0");
+    };
+  });
   const setRating = (rating: number, index: number) => {
     formik.setFieldValue(`rating${index}`, rating);
   };
 
   return (
-    <form className="p-3" onSubmit={formik.handleSubmit}>
-      <div className="m-3 flex justify-between items-center">
-        <div className="font-bold text-lg">Add your review below</div>
-        <button
-          className="hover:bg-slate-500 hover:outline-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 duration-300"
-          onClick={() => props.cancel()}
-        >
-          <XMarkIcon height="2em" width="2em"></XMarkIcon>
-        </button>
+    <form
+      className="relative overflow-y-hidden h-full"
+      onSubmit={formik.handleSubmit}
+    >
+      <div className="z-10 relative bg-white">
+        <div className="flex justify-between items-center">
+          <div className="font-bold text-lg">Add your review below</div>
+          <button
+            className="hover:bg-slate-500 hover:outline-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 duration-300"
+            onClick={() => props.cancel()}
+          >
+            <XMarkIcon height="2em" width="2em"></XMarkIcon>
+          </button>
+        </div>
+        <div className="my-6 mx-0 lg:mx-3 lg:p-3">
+          <label className="text-md">
+            Which course did you take with {props.professor.professor.firstName}
+            ?
+          </label>
+          <div className="mt-3">
+            <CourseSearch
+              setCourse={(course) => {
+                formik.setFieldValue("course", course);
+              }}
+            />
+          </div>
+        </div>
       </div>
-      <div className="m-3 p-3">
-        <label className="text-md">
-          Which course did you take with {props.professor.professor.firstName}?
-        </label>
-        <div className="mt-3">
-          <CourseSearch
-            setCourse={(course) => {
-              formik.setFieldValue("course", course);
-            }}
+
+      <div
+        id="transition"
+        className="max-h-0 transition-[max-height] relative ease-in-out overflow-y-hidden duration-1000 delay-50"
+      >
+        <div className="m-3 p-3">
+          <div className="text-center lg:text-left text-md">
+            Rate your experience with {props.professor.professor.firstName}
+          </div>
+          <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="flex flex-col items-center">
+              <label className="text-sm">Ease of Learning</label>
+              <Rating setRating={(rating) => setRating(rating, 1)}></Rating>
+            </div>
+            <div className="flex flex-col items-center">
+              <label className="text-sm">Assignment Difficulty</label>
+              <Rating setRating={(rating) => setRating(rating, 2)}></Rating>
+            </div>
+            <div className="flex flex-col items-center">
+              <label className="text-sm">Responsibility</label>
+              <Rating setRating={(rating) => setRating(rating, 3)}></Rating>
+            </div>
+            <div className="flex flex-col items-center">
+              <label className="text-sm">Personality</label>
+              <Rating setRating={(rating) => setRating(rating, 4)}></Rating>
+            </div>
+          </div>
+        </div>
+        <div className="md:m-6">
+          <div className="p-3 border border-slate-500 rounded-lg">
+            <label className="text-lg">Course Section Information</label>
+            <div className="text-sm">
+              This information is optional and completely anonymous but it&nbsp;
+              <br className="hidden lg:visible" />
+              will help calculate some objective measurements on the professor.
+            </div>
+
+            <div className="m-3">
+              <label htmlFor="grade" className="text-md">
+                Grade Obtained
+              </label>
+              <Select
+                defaultValue={"0"}
+                id="grade"
+                name="grade"
+                onChange={formik.handleChange}
+              >
+                <option value="0">Select a letter grade...</option>
+                <option value="a">A</option>
+                <option value="b">B</option>
+                <option value="c">C</option>
+                <option value="d">D</option>
+                <option value="f">F</option>
+              </Select>
+            </div>
+
+            <div className="m-3">
+              <label htmlFor="section" className="text-md">
+                Section
+              </label>
+              <TextInput
+                id="section"
+                name="section"
+                placeholder="e.g. 010"
+                onChange={formik.handleChange}
+              ></TextInput>
+            </div>
+            <div className="m-3">
+              <label htmlFor="year" className="text-md">
+                Year
+              </label>
+              <Select
+                defaultValue={"0"}
+                id="year"
+                name="year"
+                onChange={formik.handleChange}
+              >
+                <option value="0">Select a year...</option>
+                {Array.from(
+                  { length: 10 },
+                  (_, i) => new Date().getFullYear() - i
+                ).map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div className="m-3">
+              <label htmlFor="semester" className="text-md">
+                Semester
+              </label>
+              <Select
+                defaultValue={"0"}
+                id="semester"
+                name="semester"
+                onChange={formik.handleChange}
+              >
+                <option value="0">Select a semester...</option>
+                <option value="fall">Fall</option>
+                <option value="fall">Spring</option>
+              </Select>
+            </div>
+          </div>
+        </div>
+        <div className="my-6 lg:m-3 lg:p-3">
+          <label className="text-md">Leave a comment (optional)</label>
+          <Textarea
+            id="comment"
+            name="comment"
+            rows={4}
+            onChange={formik.handleChange}
           />
         </div>
       </div>
 
-      {formik.values.course && (
-        <div>
-          <div className="m-6">
-            <div className="p-3 border border-slate-500 rounded-lg">
-              <label className="text-lg">Course Section Information</label>
-              <div className="text-sm">
-                This information is optional and completely anonymous but it
-                <br />
-                will help calculate some objective measurements on the
-                professor.
-              </div>
-
-              <div className="m-3">
-                <label htmlFor="grade" className="text-md">
-                  Grade Obtained
-                </label>
-                <Select
-                  defaultValue={"0"}
-                  id="grade"
-                  name="grade"
-                  onChange={formik.handleChange}
-                >
-                  <option value="0">Select a letter grade...</option>
-                  <option value="a">A</option>
-                  <option value="b">B</option>
-                  <option value="c">C</option>
-                  <option value="d">D</option>
-                  <option value="f">F</option>
-                </Select>
-              </div>
-
-              <div className="m-3">
-                <label htmlFor="section" className="text-md">
-                  Section
-                </label>
-                <TextInput
-                  id="section"
-                  name="section"
-                  placeholder="e.g. 010"
-                  onChange={formik.handleChange}
-                ></TextInput>
-              </div>
-              <div className="m-3">
-                <label htmlFor="year" className="text-md">
-                  Year
-                </label>
-                <Select
-                  defaultValue={"0"}
-                  id="year"
-                  name="year"
-                  onChange={formik.handleChange}
-                >
-                  <option value="0">Select a year...</option>
-                  {Array.from(
-                    { length: 10 },
-                    (_, i) => new Date().getFullYear() - i
-                  ).map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-              <div className="m-3">
-                <label htmlFor="semester" className="text-md">
-                  Semester
-                </label>
-                <Select
-                  defaultValue={"0"}
-                  id="semester"
-                  name="semester"
-                  onChange={formik.handleChange}
-                >
-                  <option value="0">Select a semester...</option>
-                  <option value="fall">Fall</option>
-                  <option value="fall">Spring</option>
-                </Select>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <div className="m-3 p-3">
-              <div className="text-center lg:text-left text-md">
-                Rate your experience with {props.professor.professor.firstName}
-              </div>
-              <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="flex flex-col items-center">
-                  <label className="text-sm">Ease of Learning</label>
-                  <Rating setRating={(rating) => setRating(rating, 1)}></Rating>
-                </div>
-                <div className="flex flex-col items-center">
-                  <label className="text-sm">Assignment Difficulty</label>
-                  <Rating setRating={(rating) => setRating(rating, 2)}></Rating>
-                </div>
-                <div className="flex flex-col items-center">
-                  <label className="text-sm">Responsibility</label>
-                  <Rating setRating={(rating) => setRating(rating, 3)}></Rating>
-                </div>
-                <div className="flex flex-col items-center">
-                  <label className="text-sm">Personality</label>
-                  <Rating setRating={(rating) => setRating(rating, 4)}></Rating>
-                </div>
-              </div>
-            </div>
-            <div className="m-3 p-3">
-              <label className="text-md">Leave a comment (optional)</label>
-              <Textarea
-                id="comment"
-                name="comment"
-                rows={4}
-                onChange={formik.handleChange}
-              />
-            </div>
-          </div>
-        </div>
-      )}
       <div className="m-3 flex items-center justify-center">
         {loading ? (
           <button className="disabled p-4 m-6 bg-slate-500 text-slate-100 font-semibold rounded-lg shadow-md cursor-not-allowed">

@@ -6,7 +6,11 @@ module.exports = {
     "node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      transitionProperty: {
+        height: "max-height",
+      },
+    },
   },
   plugins: [require("flowbite/plugin")],
 };
