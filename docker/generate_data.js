@@ -12,12 +12,11 @@ const main = async () => {
       address: "123 A St",
       city: "San Juan",
       rating: 0,
-    },
-  });
-
-  const dept = await prisma.department.create({
-    data: {
-      name: "Engineering",
+      Department: {
+        create: {
+          name: "Computer Science",
+        },
+      },
     },
   });
 
@@ -27,7 +26,7 @@ const main = async () => {
         firstName: data[i].firstname,
         lastName: data[i].lastname,
         universityId: uni.id,
-        departmentId: dept.id,
+        departmentId: 1,
       },
     });
     console.log(prof.id);
