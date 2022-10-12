@@ -14,7 +14,7 @@ import { Modal, Select, Textarea, TextInput } from "flowbite-react";
 import useSWRImmutable from "swr/immutable";
 import { HttpResponse } from "../../util/http.response.model";
 import { getFetcher } from "../../util/fetcher";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { StarIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import useSWR from "swr";
 import AddCourseForm from "../../components/addCourseForm";
@@ -225,17 +225,20 @@ const AddReview = (props: {
     },
   });
 
+  const transitionDiv = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
+    const div = transitionDiv.current;
     if (formik.values.course) {
-      document.getElementById("transition")?.classList.remove("max-h-0");
-      document.getElementById("transition")?.classList.add("max-h-[3000px]");
+      div?.classList.add("max-h-0");
+      div?.classList.add("max-h-[3000px]");
     } else {
-      document.getElementById("transition")?.classList.remove("max-h-[3000px]");
-      document.getElementById("transition")?.classList.add("max-h-0");
+      div?.classList.remove("max-h-[3000px]");
+      div?.classList.add("max-h-0");
     }
     return () => {
-      document.getElementById("transition")?.classList.remove("max-h-[3000px]");
-      document.getElementById("transition")?.classList.add("max-h-0");
+      div?.classList.remove("max-h-[3000px]");
+      div?.classList.add("max-h-0");
     };
   });
   const setRating = (rating: number, index: number) => {
@@ -273,7 +276,7 @@ const AddReview = (props: {
       </div>
 
       <div
-        id="transition"
+        ref={transitionDiv}
         className="max-h-0 transition-[max-height] relative ease-in-out overflow-y-hidden duration-1000 delay-50"
       >
         <div className="m-3 p-3">

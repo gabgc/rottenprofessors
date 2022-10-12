@@ -46,10 +46,12 @@ const ProfessorSearch = () => {
 
   const renderResults = () => {
     // render loading
-    if (professorQuery.length > 2 && !data && !error) {
+    if (professorQuery.length > 1 && !data && !error) {
       return (
-        <ul className="bg-white border border-gray-100 w-full absolute">
-          Loading...
+        <ul className=" bg-white border border-gray-100 w-full absolute rounded-b-x rounded-b-xl">
+          <li className="rounded-b-xl pl-8 pr-2 py-1 border-b-2 border-gray-100 relative cursor-pointer text-gray-600">
+            Loading...
+          </li>
         </ul>
       );
     }
@@ -57,32 +59,29 @@ const ProfessorSearch = () => {
     if (data && Array.isArray(data.data)) {
       if (data.data.length === 0) {
         return (
-          <ul className="bg-white border border-gray-100 w-full absolute">
-            <li className="pl-8 pr-2 py-1 border-b-2 border-gray-100 relative cursor-pointer text-gray-600">
+          <ul className="bg-white border border-gray-100 w-full absolute rounded-b-xl">
+            <li className="rounded-b-xl pl-8 pr-2 py-1 border-b-2 border-gray-100 relative cursor-pointer text-gray-600">
               No results.
             </li>
           </ul>
         );
       }
       return (
-        <ul className="bg-white border border-gray-100 w-full absolute">
+        <ul className="bg-white border border-gray-100 w-full absolute rounded-b-xl">
           {data.data.map((professor) => (
             <li
-              className="pl-8 pr-2 py-1 border-b-2 border-gray-100 relative cursor-pointer hover:bg-green-50 hover:text-gray-900"
+              className="last:rounded-b-xl border-b-2 border-gray-100 hover:bg-green-50 hover:text-gray-900 relative "
               key={professor.id}
             >
-              <Link href={`/professor/${professor.id}`}>
-                <a
-                  className="professor-search-result"
-                  onClick={() => setProfessorQuery("")}
-                >
-                  <div>
-                    {formatResult(
-                      `${professor.firstName} ${professor.lastName}`
-                    )}
-                  </div>
-                </a>
-              </Link>
+              <a
+                href={`/professor/${professor.id}`}
+                className="professor-search-result  w-full h-full "
+                onClick={() => setProfessorQuery("")}
+              >
+                <div className="p-2">
+                  {formatResult(`${professor.firstName} ${professor.lastName}`)}
+                </div>
+              </a>
             </li>
           ))}
         </ul>
@@ -94,15 +93,17 @@ const ProfessorSearch = () => {
   return (
     <div
       className="w-full relative"
-      onBlur={(e) => {
-        e.relatedTarget?.className === "professor-search-result"
-          ? null
-          : setProfessorQuery("");
-      }}
+      // onBlur={(e) => {
+      //   e.relatedTarget?.className === "professor-search-result"
+      //     ? null
+      //     : setProfessorQuery("");
+      // }}
     >
       <div className="flex justify-center relative">
         <input
-          className="input-primary"
+          className={`input-primary rounded-xl ${
+            professorQuery.length > 1 ? " rounded-b-none" : null
+          }`}
           type="text"
           placeholder="Search for a professor"
           value={professorQuery}
