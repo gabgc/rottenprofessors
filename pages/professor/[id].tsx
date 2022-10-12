@@ -11,7 +11,6 @@ import defaultPic from "../../public/defaultpic.png";
 import { NextPageContext } from "next";
 import professorController from "../../controllers/professor";
 import { Modal, Select, Textarea, TextInput } from "flowbite-react";
-import useSWRImmutable from "swr/immutable";
 import { HttpResponse } from "../../util/http.response.model";
 import { getFetcher } from "../../util/fetcher";
 import { useEffect, useRef, useState } from "react";
@@ -20,6 +19,7 @@ import useSWR from "swr";
 import AddCourseForm from "../../components/addCourseForm";
 import { useFormik } from "formik";
 import { Review } from "../../controllers/models";
+import useOutsideClick from "../../hooks/useOutsideClick";
 
 interface ProfessorPageProps {
   professor: Professor & {
@@ -486,6 +486,11 @@ const CourseSearch = (props: {
   const [selected, setSelected] = useState<Course | null>(null);
   const [addingCourse, setAddingCourse] = useState(false);
 
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  useOutsideClick(dropdownRef, searchRef, setQuery);
+
   const { data, error } = useSWR<HttpResponse<Course>>(
     !selected && query && query.length > 0
       ? "/api/university/course?search=" + query
@@ -566,15 +571,15 @@ const CourseSearch = (props: {
 
   return (
     <div
-      onBlur={(e) => {
-        if (
-          !e.relatedTarget?.classList.contains("search-result") &&
-          !selected
-        ) {
-          setQuery("");
-          props.setCourse(null);
-        }
-      }}
+      // onBlur={(e) => {
+      //   if (
+      //     !e.relatedTarget?.classList.contains("search-result") &&
+      //     !selected
+      //   ) {
+      //     setQuery("");
+      //     props.setCourse(null);
+      //   }
+      // }}
       className="w-full relative"
     >
       <Modal show={addingCourse} onClose={() => setAddingCourse(false)}>
@@ -593,6 +598,7 @@ const CourseSearch = (props: {
       </Modal>
       <div>
         <TextInput
+          ref={searchRef}
           placeholder="Search for a course"
           value={!selected ? query : selected.code}
           onKeyDown={() => {
@@ -607,7 +613,7 @@ const CourseSearch = (props: {
           }}
         ></TextInput>
       </div>
-      {renderResults()}
+      <div ref={dropdownRef}>{renderResults()}</div>
     </div>
   );
 };

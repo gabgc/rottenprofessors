@@ -1,12 +1,17 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Professor } from "@prisma/client";
 import useSWRImmutable from "swr/immutable";
 import { getFetcher } from "../util/fetcher";
 import { HttpResponse } from "../util/http.response.model";
-import Link from "next/link";
+import useOutsideClick from "../hooks/useOutsideClick";
 
 const ProfessorSearch = () => {
   const [professorQuery, setProfessorQuery] = useState("");
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  useOutsideClick(dropdownRef, searchRef, setProfessorQuery);
 
   const { data, error } = useSWRImmutable<HttpResponse<Professor>>(
     professorQuery && professorQuery.length > 1
@@ -49,7 +54,7 @@ const ProfessorSearch = () => {
     if (professorQuery.length > 1 && !data && !error) {
       return (
         <ul className=" bg-white border border-gray-100 w-full absolute rounded-b-x rounded-b-xl">
-          <li className="rounded-b-xl pl-8 pr-2 py-1 border-b-2 border-gray-100 relative cursor-pointer text-gray-600">
+          <li className=" p-2 relative cursor-pointer text-gray-600">
             Loading...
           </li>
         </ul>
@@ -60,9 +65,7 @@ const ProfessorSearch = () => {
       if (data.data.length === 0) {
         return (
           <ul className="bg-white border border-gray-100 w-full absolute rounded-b-xl">
-            <li className="rounded-b-xl pl-8 pr-2 py-1 border-b-2 border-gray-100 relative cursor-pointer text-gray-600">
-              No results.
-            </li>
+            <li className="p-2 relative text-gray-600">No results.</li>
           </ul>
         );
       }
@@ -70,12 +73,12 @@ const ProfessorSearch = () => {
         <ul className="bg-white border border-gray-100 w-full absolute rounded-b-xl">
           {data.data.map((professor) => (
             <li
-              className="last:rounded-b-xl border-b-2 border-gray-100 hover:bg-green-50 hover:text-gray-900 relative "
+              className="last:rounded-b-xl last:border-none border-b-2 border-gray-100 hover:bg-green-50 hover:text-gray-900 relative "
               key={professor.id}
             >
               <a
                 href={`/professor/${professor.id}`}
-                className="professor-search-result  w-full h-full "
+                className="professor-search-result w-full h-full "
                 onClick={() => setProfessorQuery("")}
               >
                 <div className="p-2">
@@ -91,16 +94,10 @@ const ProfessorSearch = () => {
   };
 
   return (
-    <div
-      className="w-full relative"
-      // onBlur={(e) => {
-      //   e.relatedTarget?.className === "professor-search-result"
-      //     ? null
-      //     : setProfessorQuery("");
-      // }}
-    >
+    <div className="w-full relative">
       <div className="flex justify-center relative">
         <input
+          ref={searchRef}
           className={`input-primary rounded-xl ${
             professorQuery.length > 1 ? " rounded-b-none" : null
           }`}
@@ -110,7 +107,7 @@ const ProfessorSearch = () => {
           onChange={(e) => setProfessorQuery(e.target.value)}
         ></input>
       </div>
-      {renderResults()}
+      <div ref={dropdownRef}>{renderResults()}</div>
     </div>
   );
 };
