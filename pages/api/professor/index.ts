@@ -6,6 +6,7 @@ import {
   findAllProfessors,
   searchProfessor,
 } from "../../../controllers/professor";
+import { AddProfessorModel } from "../../../components/addProfessorForm";
 
 const handler = async (
   req: NextApiRequest,
@@ -13,7 +14,7 @@ const handler = async (
 ) => {
   if (req.method === "POST") {
     if (req.body) {
-      const professor = req.body as Professor;
+      const professor = req.body as AddProfessorModel;
       const newProfessor = await createProfessor(professor);
 
       const resBody: HttpResponse<Professor> = {

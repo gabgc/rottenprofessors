@@ -1,4 +1,5 @@
 import { Professor } from "@prisma/client";
+import { AddProfessorModel } from "../components/addProfessorForm";
 import prisma from "../prisma/client";
 
 export const findAllProfessors = () => prisma.professor.findMany();
@@ -9,8 +10,16 @@ export const findProfessorWithIncludeById = (id: number) =>
     where: { id },
     include: { university: true, department: true },
   });
-export const createProfessor = (professor: Professor) =>
-  prisma.professor.create({ data: professor });
+export const createProfessor = (professor: AddProfessorModel) =>
+  prisma.professor.create({
+    data: {
+      firstName: professor.firstName,
+      lastName: professor.lastName,
+      universityId: +professor.universityId,
+      departmentId: +professor.departmentId,
+      picture: professor.picture,
+    },
+  });
 export const updateProfessor = (id: number, professor: Professor) =>
   prisma.professor.update({ where: { id }, data: professor });
 export const deleteProfessor = (id: number) =>

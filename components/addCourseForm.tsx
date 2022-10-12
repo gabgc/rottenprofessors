@@ -1,4 +1,3 @@
-import { XMarkIcon } from "@heroicons/react/24/solid";
 import { Course, Department } from "@prisma/client";
 import { useState } from "react";
 import { getFetcher } from "../util/fetcher";
