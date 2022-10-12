@@ -1,9 +1,12 @@
 import { useRef, useState } from "react";
-import { Professor } from "@prisma/client";
+import { Professor, University } from "@prisma/client";
 import useSWRImmutable from "swr/immutable";
 import { getFetcher } from "../util/fetcher";
 import { HttpResponse } from "../util/http.response.model";
 import useOutsideClick from "../hooks/useOutsideClick";
+import Link from "next/link";
+
+type ProfessorWithUniversity = Professor & { university: University };
 
 const ProfessorSearch = () => {
   const [professorQuery, setProfessorQuery] = useState("");
@@ -13,7 +16,9 @@ const ProfessorSearch = () => {
 
   useOutsideClick(dropdownRef, searchRef, setProfessorQuery);
 
-  const { data, error } = useSWRImmutable<HttpResponse<Professor>>(
+  const { data, error } = useSWRImmutable<
+    HttpResponse<ProfessorWithUniversity>
+  >(
     professorQuery && professorQuery.length > 1
       ? `/api/professor?search=${professorQuery}`
       : null,
@@ -65,7 +70,11 @@ const ProfessorSearch = () => {
       if (data.data.length === 0) {
         return (
           <ul className="bg-white border border-gray-100 w-full absolute rounded-b-xl">
-            <li className="p-2 relative text-gray-600">No results.</li>
+            <li className="p-2 relative text-gray-600">
+              <Link href="/professor">
+                <a>No results. Click here to add a professor</a>
+              </Link>
+            </li>
           </ul>
         );
       }
@@ -82,7 +91,11 @@ const ProfessorSearch = () => {
                 onClick={() => setProfessorQuery("")}
               >
                 <div className="p-2">
-                  {formatResult(`${professor.firstName} ${professor.lastName}`)}
+                  {formatResult(`${professor.firstName} ${professor.lastName}`)}{" "}
+                  -{" "}
+                  <span className=" text-gray-600">
+                    {professor.university.name}
+                  </span>
                 </div>
               </a>
             </li>

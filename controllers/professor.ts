@@ -44,6 +44,7 @@ export const searchProfessor = (searchStr: string) => {
         },
       },
       take: 10,
+      include: { university: true },
     });
   }
   return prisma.professor.findMany({
@@ -71,6 +72,7 @@ export const searchProfessor = (searchStr: string) => {
       },
     },
     take: 10,
+    include: { university: true },
   });
 };
 

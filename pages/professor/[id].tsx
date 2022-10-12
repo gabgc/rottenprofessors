@@ -121,9 +121,12 @@ const CommentSection = (props: ProfessorPageProps) => {
           <div>No comments yet</div>
         ) : (
           <div>
-            {data.data.map((comment) => (
-              <Comment key={comment.id} data={comment}></Comment>
-            ))}
+            {data.data.map(
+              (comment) =>
+                comment.comment && (
+                  <Comment key={comment.id} data={comment}></Comment>
+                )
+            )}
           </div>
         );
     }
