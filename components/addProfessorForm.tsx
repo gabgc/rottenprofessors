@@ -3,7 +3,6 @@ import { useState } from "react";
 import { getFetcher } from "../util/fetcher";
 import { HttpResponse } from "../util/http.response.model";
 import useSWRImmutable from "swr/immutable";
-import { Select, TextInput } from "flowbite-react";
 import { useFormik } from "formik";
 
 export type AddProfessorModel = {
@@ -62,44 +61,54 @@ const AddProfessorForm = (props: {
         <label htmlFor="firstName" className="text-md">
           First Name
         </label>
-        <TextInput
+        <input
+          className="input-primary"
           id="firstName"
           name="firstName"
+          type="text"
           placeholder="Enter first name"
           onChange={formik.handleChange}
           value={formik.values.firstName}
-        ></TextInput>
+        ></input>
       </div>
       <div className="m-3">
         <label htmlFor="lastName" className="text-md">
           Last Name
         </label>
-        <TextInput
+        <input
+          className="input-primary"
           id="lastName"
           name="lastName"
+          type="text"
           placeholder="Enter last name"
           onChange={formik.handleChange}
           value={formik.values.lastName}
-        ></TextInput>
+        ></input>
       </div>
       <div className="m-3">
         <label className="text-md">Department</label>
         {!fetchDepartments.data ? (
           <div>Loading...</div>
         ) : (
-          <Select
-            id="departmentId"
-            name="departmentId"
-            defaultValue={"0"}
-            onChange={formik.handleChange}
-          >
-            <option value="0">Choose a department...</option>
-            {(fetchDepartments.data?.data as Department[]).map((department) => (
-              <option key={department.id} value={department.id}>
-                {department.name}
-              </option>
-            ))}
-          </Select>
+          <div>
+            <select
+              className="input-primary"
+              id="departmentId"
+              name="departmentId"
+              defaultValue={"0"}
+              value={formik.values.departmentId}
+              onChange={formik.handleChange}
+            >
+              <option value="0">Choose a department...</option>
+              {(fetchDepartments.data?.data as Department[]).map(
+                (department) => (
+                  <option key={department.id} value={department.id}>
+                    {department.name}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
         )}
       </div>
       <div className="m-3">
@@ -107,21 +116,25 @@ const AddProfessorForm = (props: {
         {!fetchUniversities.data ? (
           <div>Loading...</div>
         ) : (
-          <Select
-            id="universityId"
-            name="universityId"
-            defaultValue={"0"}
-            onChange={formik.handleChange}
-          >
-            <option value="0">Choose a university...</option>
-            {(fetchUniversities.data?.data as University[]).map(
-              (university) => (
-                <option key={university.id} value={university.id}>
-                  {university.name}
-                </option>
-              )
-            )}
-          </Select>
+          <div>
+            <select
+              className="input-primary"
+              id="universityId"
+              name="universityId"
+              defaultValue={"0"}
+              value={formik.values.departmentId}
+              onChange={formik.handleChange}
+            >
+              <option value="0">Choose a university...</option>
+              {(fetchUniversities.data?.data as University[]).map(
+                (university) => (
+                  <option key={university.id} value={university.id}>
+                    {university.name}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
         )}
       </div>
       <div className="m-3 flex items-center justify-center">

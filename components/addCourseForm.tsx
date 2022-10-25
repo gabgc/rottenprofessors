@@ -3,7 +3,6 @@ import { useState } from "react";
 import { getFetcher } from "../util/fetcher";
 import { HttpResponse } from "../util/http.response.model";
 import useSWRImmutable from "swr/immutable";
-import { Select, TextInput } from "flowbite-react";
 import { useFormik } from "formik";
 
 const AddCourseForm = (props: {
@@ -52,32 +51,37 @@ const AddCourseForm = (props: {
         <label htmlFor="name" className="text-md">
           Course name
         </label>
-        <TextInput
+        <input
+          className="input-primary"
+          type="text"
           id="name"
           name="name"
           placeholder="e.g. Introduction to Computer Science"
           onChange={formik.handleChange}
           value={formik.values.name}
-        ></TextInput>
+        ></input>
       </div>
       <div className="m-3">
         <label htmlFor="code" className="text-md">
           Course code
         </label>
-        <TextInput
+        <input
+          className="input-primary"
+          type="text"
           id="code"
           name="code"
           placeholder="e.g. COMP 1000"
           onChange={formik.handleChange}
           value={formik.values.code}
-        ></TextInput>
+        ></input>
       </div>
       <div className="m-3">
         <label className="text-md">Department</label>
         {!fetchDepartments.data ? (
           <div>Loading...</div>
         ) : (
-          <Select
+          <select
+            className="input-primary"
             id="departmentId"
             name="departmentId"
             defaultValue={"0"}
@@ -89,7 +93,7 @@ const AddCourseForm = (props: {
                 {department.name}
               </option>
             ))}
-          </Select>
+          </select>
         )}
       </div>
       <div className="m-3 flex items-center justify-center">

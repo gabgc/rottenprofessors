@@ -10,16 +10,16 @@ import Image from "next/image";
 import defaultPic from "../../public/defaultpic.png";
 import { NextPageContext } from "next";
 import professorController from "../../controllers/professor";
-import { Modal, Select, Textarea, TextInput } from "flowbite-react";
 import { HttpResponse } from "../../util/http.response.model";
 import { getFetcher } from "../../util/fetcher";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { StarIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import useSWR from "swr";
 import AddCourseForm from "../../components/addCourseForm";
 import { useFormik } from "formik";
 import { Review } from "../../controllers/models";
 import useOutsideClick from "../../hooks/useOutsideClick";
+import { Dialog, Transition } from "@headlessui/react";
 
 interface ProfessorPageProps {
   professor: Professor & {
@@ -315,7 +315,8 @@ const AddReview = (props: {
               <label htmlFor="grade" className="text-md">
                 Grade Obtained
               </label>
-              <Select
+              <select
+                className="input-primary"
                 defaultValue={"0"}
                 id="grade"
                 name="grade"
@@ -327,25 +328,28 @@ const AddReview = (props: {
                 <option value="c">C</option>
                 <option value="d">D</option>
                 <option value="f">F</option>
-              </Select>
+              </select>
             </div>
 
             <div className="m-3">
               <label htmlFor="section" className="text-md">
                 Section
               </label>
-              <TextInput
+              <input
+                className="input-primary"
+                type="text"
                 id="section"
                 name="section"
                 placeholder="e.g. 010"
                 onChange={formik.handleChange}
-              ></TextInput>
+              ></input>
             </div>
             <div className="m-3">
               <label htmlFor="year" className="text-md">
                 Year
               </label>
-              <Select
+              <select
+                className="input-primary"
                 defaultValue={"0"}
                 id="year"
                 name="year"
@@ -360,13 +364,14 @@ const AddReview = (props: {
                     {year}
                   </option>
                 ))}
-              </Select>
+              </select>
             </div>
             <div className="m-3">
               <label htmlFor="semester" className="text-md">
                 Semester
               </label>
-              <Select
+              <select
+                className="input-primary"
                 defaultValue={"0"}
                 id="semester"
                 name="semester"
@@ -375,13 +380,14 @@ const AddReview = (props: {
                 <option value="0">Select a semester...</option>
                 <option value="fall">Fall</option>
                 <option value="fall">Spring</option>
-              </Select>
+              </select>
             </div>
           </div>
         </div>
         <div className="my-6 lg:m-3 lg:p-3">
           <label className="text-md">Leave a comment (optional)</label>
-          <Textarea
+          <textarea
+            className="input-primary"
             id="comment"
             name="comment"
             rows={4}
@@ -570,19 +576,8 @@ const CourseSearch = (props: {
   };
 
   return (
-    <div
-      // onBlur={(e) => {
-      //   if (
-      //     !e.relatedTarget?.classList.contains("search-result") &&
-      //     !selected
-      //   ) {
-      //     setQuery("");
-      //     props.setCourse(null);
-      //   }
-      // }}
-      className="w-full relative"
-    >
-      <Modal show={addingCourse} onClose={() => setAddingCourse(false)}>
+    <div className="w-full relative">
+      {/* <Modal show={addingCourse} onClose={() => setAddingCourse(false)}>
         <Modal.Header>
           <span className="text-lg">Add a course</span>
         </Modal.Header>
@@ -595,9 +590,20 @@ const CourseSearch = (props: {
             close={() => setAddingCourse(false)}
           ></AddCourseForm>
         </Modal.Body>
-      </Modal>
+      </Modal> */}
+      <AddCourseFormModal
+        isOpen={addingCourse}
+        onClose={() => setAddingCourse(false)}
+        onAdd={(course) => {
+          props.setCourse(course);
+          setSelected(course);
+        }}
+      />
+
       <div>
-        <TextInput
+        <input
+          className="input-primary"
+          type="text"
           ref={searchRef}
           placeholder="Search for a course"
           value={!selected ? query : selected.code}
@@ -611,10 +617,58 @@ const CourseSearch = (props: {
           onChange={(e) => {
             setQuery(e.target.value);
           }}
-        ></TextInput>
+        ></input>
       </div>
       <div ref={dropdownRef}>{renderResults()}</div>
     </div>
+  );
+};
+
+const AddCourseFormModal = (props: {
+  isOpen: boolean;
+  onClose: () => void;
+  onAdd: (course: Course | null) => void;
+}) => {
+  return (
+    <Transition show={props.isOpen} as={Fragment}>
+      <Dialog onClose={props.onClose} className="relative z-50">
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black/30" />
+        </Transition.Child>
+
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0 scale-95"
+          enterTo="opacity-100 scale-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100 scale-100"
+          leaveTo="opacity-0 scale-95"
+        >
+          <div className="fixed inset-0 flex items-center justify-center p-6">
+            <Dialog.Panel className="mx-auto w-full md:w-3/4 rounded bg-white">
+              <Dialog.Title className="text-center font-bold text-xl p-6">
+                Add a course
+              </Dialog.Title>
+              <AddCourseForm
+                setCourse={(course) => {
+                  props.onAdd(course);
+                }}
+                close={props.onClose}
+              ></AddCourseForm>
+            </Dialog.Panel>
+          </div>
+        </Transition.Child>
+      </Dialog>
+    </Transition>
   );
 };
 
