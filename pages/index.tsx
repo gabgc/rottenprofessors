@@ -18,7 +18,7 @@ const Home: NextPage = () => {
 
   return (
     <div className="bg-gradient-to-tr from-slate-600 to-green-500">
-      <div className="p-24 text-3xl md:text-5xl lg:text-7xl text-center text-white">
+      <div className="p-11 lg:p-24 text-4xl md:text-5xl lg:text-7xl text-center text-white">
         {headerText}
       </div>
       {!matches && (

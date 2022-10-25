@@ -65,7 +65,7 @@ const ProfessorBasicInfo = (props: ProfessorPageProps) => {
 
   return (
     <div
-      className="shadow-lg bg-green-500 rounded-lg p-6 flex flex-col justify-center items-center"
+      className="shadow-lg bg-gradient-to-tr from-slate-600 to-green-500 rounded-lg p-6 flex flex-col justify-center items-center"
       style={{ height: "500px" }}
     >
       <div className="text-3xl text-center font-bold text-white">
@@ -93,7 +93,7 @@ const ProfessorBasicInfo = (props: ProfessorPageProps) => {
 const ProfessorCourseStatistics = (props: ProfessorPageProps) => {
   return (
     <div
-      className="shadow-lg bg-green-500 rounded-lg p-6 flex flex-col justify-center items-center"
+      className="shadow-lg bg-gradient-to-tr from-slate-600 to-green-500 rounded-lg p-6 flex flex-col justify-center items-center"
       style={{ height: "500px" }}
     >
       TODO
@@ -166,19 +166,17 @@ const CommentSection = (props: ProfessorPageProps) => {
 };
 
 const Comment = (props: { data: CommentProps }) => {
-  const { comment, Course } = props.data;
+  const { comment, Course, createdOn, id } = props.data;
+  console.log(id, createdOn);
   return (
-    <div className="flex flex-col justify-center items-center">
-      <div className="flex justify-between items-center w-full">
-        <div className="flex flex-col justify-center items-center">
-          <div>
-            Comment for {Course.name} ({Course.code})
-          </div>
+    <div className="p-4">
+      <div className="w-full">
+        <div className="text-sm text-slate-700"></div>
+        <div className="text-sm text-slate-700">
+          {Course.name} ({Course.code})
         </div>
       </div>
-      <div className="flex justify-center items-center w-full">
-        <div className="text-lg">{comment}</div>
-      </div>
+      <div className="text-md">{comment}</div>
     </div>
   );
 };
@@ -288,19 +286,27 @@ const AddReview = (props: {
           </div>
           <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="flex flex-col items-center">
-              <label className="text-sm">Ease of Learning</label>
+              <label className="text-sm text-center">
+                How easy was it to understand their lessons?
+              </label>
               <Rating setRating={(rating) => setRating(rating, 1)}></Rating>
             </div>
             <div className="flex flex-col items-center">
-              <label className="text-sm">Assignment Difficulty</label>
+              <label className="text-sm text-center">
+                How easy were the assignments / exams?
+              </label>
               <Rating setRating={(rating) => setRating(rating, 2)}></Rating>
             </div>
             <div className="flex flex-col items-center">
-              <label className="text-sm">Responsibility</label>
+              <label className="text-sm text-center">
+                Did they show responsibility to the class?
+              </label>
               <Rating setRating={(rating) => setRating(rating, 3)}></Rating>
             </div>
             <div className="flex flex-col items-center">
-              <label className="text-sm">Personality</label>
+              <label className="text-sm text-center">
+                What would you rate their personality?
+              </label>
               <Rating setRating={(rating) => setRating(rating, 4)}></Rating>
             </div>
           </div>
@@ -596,7 +602,6 @@ const CourseSearch = (props: {
 
       <div>
         <input
-          className="input-primary"
           type="text"
           ref={searchRef}
           className={`input-primary rounded-xl ${
