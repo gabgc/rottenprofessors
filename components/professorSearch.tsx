@@ -1,9 +1,12 @@
 import { useRef, useState } from "react";
-import { Professor } from "@prisma/client";
+import { Professor, University } from "@prisma/client";
 import useSWRImmutable from "swr/immutable";
 import { getFetcher } from "../util/fetcher";
 import { HttpResponse } from "../util/http.response.model";
 import useOutsideClick from "../hooks/useOutsideClick";
+import Link from "next/link";
+
+type ProfessorWithUniversity = Professor & { university: University };
 
 const ProfessorSearch = () => {
   const [professorQuery, setProfessorQuery] = useState("");
@@ -13,7 +16,9 @@ const ProfessorSearch = () => {
 
   useOutsideClick(dropdownRef, searchRef, setProfessorQuery);
 
-  const { data, error } = useSWRImmutable<HttpResponse<Professor>>(
+  const { data, error } = useSWRImmutable<
+    HttpResponse<ProfessorWithUniversity>
+  >(
     professorQuery && professorQuery.length > 1
       ? `/api/professor?search=${professorQuery}`
       : null,
@@ -53,7 +58,7 @@ const ProfessorSearch = () => {
     // render loading
     if (professorQuery.length > 1 && !data && !error) {
       return (
-        <ul className=" bg-white border border-gray-100 w-full absolute rounded-b-x rounded-b-xl">
+        <ul className=" bg-white borderborder-slate-300 ring-1 ring-slate-300 w-full absolute rounded-b-xl">
           <li className=" p-2 relative cursor-pointer text-gray-600">
             Loading...
           </li>
@@ -64,13 +69,17 @@ const ProfessorSearch = () => {
     if (data && Array.isArray(data.data)) {
       if (data.data.length === 0) {
         return (
-          <ul className="bg-white border border-gray-100 w-full absolute rounded-b-xl">
-            <li className="p-2 relative text-gray-600">No results.</li>
+          <ul className="bg-white border border-slate-300 ring-1 ring-slate-300 w-full absolute rounded-b-xl">
+            <li className="p-2 relative text-gray-600">
+              <Link href="/professor">
+                <a>No results. Click here to add a professor</a>
+              </Link>
+            </li>
           </ul>
         );
       }
       return (
-        <ul className="bg-white border border-gray-100 w-full absolute rounded-b-xl">
+        <ul className="bg-white border border-slate-300 ring-1 ring-slate-300 w-full absolute rounded-b-xl">
           {data.data.map((professor) => (
             <li
               className="last:rounded-b-xl last:border-none border-b-2 border-gray-100 hover:bg-green-50 hover:text-gray-900 relative "
@@ -82,7 +91,11 @@ const ProfessorSearch = () => {
                 onClick={() => setProfessorQuery("")}
               >
                 <div className="p-2">
-                  {formatResult(`${professor.firstName} ${professor.lastName}`)}
+                  {formatResult(`${professor.firstName} ${professor.lastName}`)}{" "}
+                  -{" "}
+                  <span className=" text-gray-600">
+                    {professor.university.name}
+                  </span>
                 </div>
               </a>
             </li>

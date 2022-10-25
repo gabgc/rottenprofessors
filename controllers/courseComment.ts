@@ -3,20 +3,10 @@ import prisma from "../prisma/client";
 import { Review } from "./models";
 
 export const findAllCourseComments = () => prisma.courseComment.findMany();
-export const findAllCourseCommentsByProfessorId = (professorId: number) =>
+export const findAllCourseCommentsByProfessorId = async (professorId: number) =>
   prisma.courseComment.findMany({
-    where: {
-      Course: {
-        Professor: {
-          every: {
-            id: professorId,
-          },
-        },
-      },
-    },
-    include: {
-      Course: true,
-    },
+    where: { professorId },
+    include: { Course: true },
   });
 
 export const findCourseCommentById = (id: number) =>
@@ -72,6 +62,7 @@ export const createCourseComment = async (
       rating2,
       rating3,
       rating4,
+      professorId,
     },
     include: {
       Course: true,

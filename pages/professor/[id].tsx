@@ -121,9 +121,12 @@ const CommentSection = (props: ProfessorPageProps) => {
           <div>No comments yet</div>
         ) : (
           <div>
-            {data.data.map((comment) => (
-              <Comment key={comment.id} data={comment}></Comment>
-            ))}
+            {data.data.map(
+              (comment) =>
+                comment.comment && (
+                  <Comment key={comment.id} data={comment}></Comment>
+                )
+            )}
           </div>
         );
     }
@@ -534,8 +537,10 @@ const CourseSearch = (props: {
     // render loading
     if (!selected && query.length > 0 && !data && !error) {
       return (
-        <ul className="search-result bg-white border border-gray-100 w-full absolute">
-          <span tabIndex={0}>Loading...</span>
+        <ul className="search-result bg-white border border-slate-300 ring-1 ring-slate-300 w-full absolute rounded-b-xl">
+          <li className="p-2 relative cursor-pointer text-gray-600">
+            Loading...
+          </li>
         </ul>
       );
     }
@@ -543,10 +548,10 @@ const CourseSearch = (props: {
     if (data && Array.isArray(data.data)) {
       if (data.data.length === 0) {
         return (
-          <ul className="bg-white border border-gray-100 w-full absolute">
+          <ul className="bg-white border border-slate-300 ring-1 ring-slate-300 w-full absolute rounded-b-xl">
             <li
               tabIndex={0}
-              className="search-result pl-8 pr-2 py-1 border-b-2 border-gray-100 relative cursor-pointer text-gray-600"
+              className="last:rounded-b-xl p-2 relative cursor-pointer text-gray-600"
               onClick={() => setAddingCourse(true)}
             >
               No results. Click to add a new course.
@@ -555,18 +560,21 @@ const CourseSearch = (props: {
         );
       }
       return (
-        <ul className="bg-white border border-gray-100 w-full absolute">
+        <ul className="bg-white border border-slate-300 ring-1 ring-slate-300 w-full absolute rounded-b-xl">
           {data.data.map((course) => (
             <li
               tabIndex={0}
-              className="pl-8 pr-2 py-1 border-b-2 border-gray-100 relative cursor-pointer hover:bg-green-50 hover:text-gray-900 search-result"
+              className="last:rounded-b-xl last:border-none border-b-2 border-gray-100 relative cursor-pointer hover:bg-green-50 hover:text-gray-900"
               key={course.id}
               onClick={() => {
                 props.setCourse(course);
                 setSelected(course);
               }}
             >
-              {formatResult(course.code)}
+              <div className="p-2 w-full h-full">
+                {formatResult(course.code)} -{" "}
+                <span className="text-gray-600">{course.name}</span>
+              </div>
             </li>
           ))}
         </ul>
@@ -577,20 +585,6 @@ const CourseSearch = (props: {
 
   return (
     <div className="w-full relative">
-      {/* <Modal show={addingCourse} onClose={() => setAddingCourse(false)}>
-        <Modal.Header>
-          <span className="text-lg">Add a course</span>
-        </Modal.Header>
-        <Modal.Body>
-          <AddCourseForm
-            setCourse={(course) => {
-              props.setCourse(course);
-              setSelected(course);
-            }}
-            close={() => setAddingCourse(false)}
-          ></AddCourseForm>
-        </Modal.Body>
-      </Modal> */}
       <AddCourseFormModal
         isOpen={addingCourse}
         onClose={() => setAddingCourse(false)}
@@ -605,6 +599,9 @@ const CourseSearch = (props: {
           className="input-primary"
           type="text"
           ref={searchRef}
+          className={`input-primary rounded-xl ${
+            query.length > 0 ? "rounded-b-none" : null
+          }`}
           placeholder="Search for a course"
           value={!selected ? query : selected.code}
           onKeyDown={() => {

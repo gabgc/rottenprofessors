@@ -16,6 +16,7 @@ export type AddProfessorModel = {
 const AddProfessorForm = (props: {
   setProfessor?: (professor: Professor) => void;
   close?: () => void;
+  onSuccess?: (professor: Professor) => void;
 }) => {
   const [loading, setLoading] = useState(false);
 
@@ -41,6 +42,7 @@ const AddProfessorForm = (props: {
       if (data.data && !Array.isArray(data.data)) {
         if (props.setProfessor !== undefined) props.setProfessor(data.data);
         if (props.close !== undefined) props.close();
+        if (props.onSuccess) props.onSuccess(data.data);
       }
     },
   });
