@@ -5,6 +5,7 @@ import { getFetcher } from "../util/fetcher";
 import { HttpResponse } from "../util/http.response.model";
 import useOutsideClick from "../hooks/useOutsideClick";
 import Link from "next/link";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 
 type ProfessorWithUniversity = Professor & { university: University };
 
@@ -72,7 +73,9 @@ const ProfessorSearch = () => {
           <ul className="bg-white border border-slate-300 ring-1 ring-slate-300 w-full absolute rounded-b-xl">
             <li className="p-2 relative text-gray-600">
               <Link href="/professor">
-                <a>No results. Click here to add a professor</a>
+                <a onClick={() => setProfessorQuery("")}>
+                  No results. Click here to add a professor
+                </a>
               </Link>
             </li>
           </ul>
@@ -108,17 +111,23 @@ const ProfessorSearch = () => {
 
   return (
     <div className="w-full relative">
-      <div className="flex justify-center relative">
+      <div className="relative">
+        <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+          <MagnifyingGlassIcon
+            color="gray"
+            className="w-5 h-5"
+          ></MagnifyingGlassIcon>
+        </div>
         <input
-          ref={searchRef}
-          className={`input-primary rounded-xl ${
+          className={`block w-full pl-10 p-2.5 input-primary rounded-xl ${
             professorQuery.length > 1 ? " rounded-b-none" : null
           }`}
+          ref={searchRef}
           type="text"
           placeholder="Search for a professor"
           value={professorQuery}
           onChange={(e) => setProfessorQuery(e.target.value)}
-        ></input>
+        />
       </div>
       <div ref={dropdownRef}>{renderResults()}</div>
     </div>

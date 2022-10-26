@@ -42,7 +42,7 @@ const ProfessorPageWrapper = ({
 const ProfessorPage = (props: ProfessorPageProps) => {
   return (
     <>
-      <div className="p-2 lg:p-5 grid grid-cols-1 md:grid-cols-2">
+      <div className="p-2 lg:p-5 lg:grid lg:grid-cols-2">
         <div className="m-2">
           <ProfessorBasicInfo professor={props.professor} />
         </div>
@@ -91,12 +91,68 @@ const ProfessorBasicInfo = (props: ProfessorPageProps) => {
 };
 
 const ProfessorCourseStatistics = (props: ProfessorPageProps) => {
+  const iconSize = 80;
   return (
-    <div
-      className="shadow-lg bg-gradient-to-tr from-slate-600 to-green-500 rounded-lg p-6 flex flex-col justify-center items-center"
-      style={{ height: "500px" }}
-    >
-      TODO
+    <div className="shadow-lg text-white bg-gradient-to-tr from-slate-600 to-green-500 rounded-lg p-6 flex flex-col justify-center items-center h-full">
+      <div className="text-2xl text-center font-bold text-white">
+        Statistics
+      </div>
+      <div className="py-6 text-xl text-center font-bold text-white">
+        Overall Grade: A
+      </div>
+      <div className="flex items-center justify-center h-4/5 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center w-full">
+          <div className="mx-auto">
+            <div className="bg-slate-700 rounded-md p-5 w-60 h-60 flex flex-col items-center justify-center">
+              <div>Understandability</div>
+              <Image
+                alt="How easy was it to understand their lessons?"
+                src="/learning.svg"
+                color="white"
+                height={iconSize}
+                width={iconSize}
+              ></Image>
+              <div>50%</div>
+            </div>
+          </div>
+          <div className="mx-auto">
+            <div className="bg-slate-700 rounded-md p-5 w-60 h-60 flex flex-col items-center justify-center">
+              <div>Difficulty</div>
+              <Image
+                alt="How easy were the assignments / exams?"
+                src="/assignment.svg"
+                height={iconSize}
+                width={iconSize}
+              ></Image>
+              <div>50%</div>
+            </div>
+          </div>
+          <div className="mx-auto">
+            <div className="bg-green-500 bg-opacity-70 rounded-md p-5 w-60 h-60 flex flex-col items-center justify-center">
+              <label>Responsibility</label>
+              <Image
+                alt="How easy were the assignments / exams?"
+                src="/difficulty.svg"
+                height={iconSize}
+                width={iconSize}
+              ></Image>
+              <div>50%</div>
+            </div>
+          </div>
+          <div className="mx-auto">
+            <div className="bg-slate-700 rounded-md p-5 w-60 h-60 flex flex-col items-center justify-center">
+              <label>Personality</label>
+              <Image
+                alt="What would you rate their personality?"
+                src="/personality.svg"
+                height={iconSize}
+                width={iconSize}
+              ></Image>
+              <div>50%</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -246,6 +302,8 @@ const AddReview = (props: {
     formik.setFieldValue(`rating${index}`, rating);
   };
 
+  const iconSize = 80;
+
   return (
     <form
       className="relative overflow-y-hidden h-full"
@@ -286,33 +344,57 @@ const AddReview = (props: {
           </div>
           <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="flex flex-col items-center">
-              <label className="text-sm text-center">
+              <label className="text-sm text-center justify-between">
                 How easy was it to understand their lessons?
               </label>
+              <Image
+                alt="How easy was it to understand their lessons?"
+                src="/learning.svg"
+                height={iconSize}
+                width={iconSize}
+              ></Image>
               <Rating setRating={(rating) => setRating(rating, 1)}></Rating>
             </div>
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center justify-between">
               <label className="text-sm text-center">
                 How easy were the assignments / exams?
               </label>
+              <Image
+                alt="How easy were the assignments / exams?"
+                src="/assignment.svg"
+                height={iconSize}
+                width={iconSize}
+              ></Image>
               <Rating setRating={(rating) => setRating(rating, 2)}></Rating>
             </div>
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center justify-between">
               <label className="text-sm text-center">
                 Did they show responsibility to the class?
               </label>
+              <Image
+                alt="How easy were the assignments / exams?"
+                src="/difficulty.svg"
+                height={iconSize}
+                width={iconSize}
+              ></Image>
               <Rating setRating={(rating) => setRating(rating, 3)}></Rating>
             </div>
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center justify-between">
               <label className="text-sm text-center">
                 What would you rate their personality?
               </label>
+              <Image
+                alt="What would you rate their personality?"
+                src="/personality.svg"
+                height={iconSize}
+                width={iconSize}
+              ></Image>
               <Rating setRating={(rating) => setRating(rating, 4)}></Rating>
             </div>
           </div>
         </div>
         <div className="md:m-6">
-          <div className="p-3 border border-slate-500 rounded-lg">
+          <div className="p-3 shadow-lg text-white bg-gradient-to-tr from-slate-600 to-green-500 rounded-lg">
             <label className="text-lg">Course Section Information</label>
             <div className="text-sm">
               This information is optional and completely anonymous but it&nbsp;
@@ -325,7 +407,7 @@ const AddReview = (props: {
                 Grade Obtained
               </label>
               <select
-                className="input-primary"
+                className="input-primary text-black"
                 defaultValue={"0"}
                 id="grade"
                 name="grade"
@@ -345,7 +427,7 @@ const AddReview = (props: {
                 Section
               </label>
               <input
-                className="input-primary"
+                className="input-primary text-black"
                 type="text"
                 id="section"
                 name="section"
@@ -358,7 +440,7 @@ const AddReview = (props: {
                 Year
               </label>
               <select
-                className="input-primary"
+                className="input-primary text-black"
                 defaultValue={"0"}
                 id="year"
                 name="year"
@@ -380,7 +462,7 @@ const AddReview = (props: {
                 Semester
               </label>
               <select
-                className="input-primary"
+                className="input-primary text-black"
                 defaultValue={"0"}
                 id="semester"
                 name="semester"
@@ -396,7 +478,7 @@ const AddReview = (props: {
         <div className="my-6 lg:m-3 lg:p-3">
           <label className="text-md">Leave a comment (optional)</label>
           <textarea
-            className="input-primary"
+            className="input-primary text-black"
             id="comment"
             name="comment"
             rows={4}
