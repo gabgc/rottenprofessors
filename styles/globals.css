@@ -11,3 +11,15 @@
           focus:invalid:border-pink-500 focus:invalid:ring-pink-500;
   }
 }
+
+html{
+  @apply bg-gray-800
+}
+
+.scrollbar-hidden{
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
