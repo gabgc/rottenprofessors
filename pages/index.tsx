@@ -1,31 +1,22 @@
 import type { NextPage } from "next";
+import ProfessorCardWrapper from "../components/ProfessorCardWrapper";
 import ProfessorSearch from "../components/professorSearch";
-import useMediaQueryMatches, {
-  MEDIA_QUERY_BREAKPOINTS,
-} from "../hooks/useMediaQueryMatches";
 
 const Home: NextPage = () => {
-  const matches = useMediaQueryMatches(MEDIA_QUERY_BREAKPOINTS.md);
-
-  const headerText = matches ? (
-    <span>
-      Make an informed desicion
-      <br /> on next semester&apos;s classes
-    </span>
-  ) : (
-    <span>Make an informed desicion on next semester&apos;s classes</span>
-  );
-
   return (
-    <div className="bg-gradient-to-tr from-slate-600 to-green-500">
-      <div className="p-24 text-3xl md:text-5xl lg:text-7xl text-center text-white">
-        {headerText}
-      </div>
-      {!matches && (
-        <div className="w-full flex justify-center p-10">
+    <div>
+      <div className="w-full flex align-middle justify-center">
+        <div className="w-full px-12 py-8">
           <ProfessorSearch />
         </div>
-      )}
+      </div>
+      <div className="w-full min-h-[280px] flex align-middle justify-center">
+        <div className="w-full pl-12 py-8 min-h-full">
+          <span className="text-gray-25 font-bold">Most Searched</span>
+          <span className="text-gray-25"> Professors</span>
+          <ProfessorCardWrapper />
+        </div>
+      </div>
     </div>
   );
 };
