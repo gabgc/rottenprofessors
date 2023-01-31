@@ -11,9 +11,12 @@ const Home: NextPage = () => {
         </div>
       </div>
       <div className="w-full min-h-[280px] flex align-middle justify-center">
-        <div className="w-full pl-12 py-8 min-h-full">
-          <span className="text-gray-25 font-bold">Most Searched</span>
-          <span className="text-gray-25"> Professors</span>
+        <div className="w-full py-8 min-h-full">
+          <div className="pl-12">
+            <span className="text-gray-25 font-bold">Most Searched</span>
+            <span className="text-gray-25"> Professors</span>
+          </div>
+
           <ProfessorCardWrapper />
         </div>
       </div>

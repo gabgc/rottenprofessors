@@ -9,8 +9,15 @@ const ProfessorCardWrapper = () => {
 
   return (
     <div className="overflow-x-scroll flex flex-row scrollbar-hidden h-full">
-      {data.data.slice(0, 5).map((professor: any) => {
-        return <ProfessorCard key={professor.id} professor={professor} />;
+      {data.data.slice(0, 5).map((professor: any, index: number) => {
+        console.log(professor, index);
+        return (
+          <ProfessorCard
+            key={professor.id}
+            professor={professor}
+            className={index === 0 ? "ml-12" : ""}
+          />
+        );
       })}
     </div>
   );
